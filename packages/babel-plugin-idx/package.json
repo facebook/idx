@@ -1,0 +1,10 @@
+{
+  "name": "babel-plugin-idx",
+  "version": "1.0.0",
+  "description": "Babel plugin for transforming the idx utility function.",
+  "main": "lib/index.js",
+  "files": [
+  ],
+  "repository": "facebook/idx",
+  "license": "BSD-3-Clause",
+}

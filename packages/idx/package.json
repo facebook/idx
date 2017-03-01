@@ -1,0 +1,10 @@
+{
+  "name": "idx",
+  "version": "1.0.0",
+  "description": "Utility function for traversing properties on objects and arrays.",
+  "main": "lib/idx.js",
+  "files": [
+  ],
+  "repository": "facebook/idx",
+  "license": "BSD-3-Clause"
+}
