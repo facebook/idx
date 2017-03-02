@@ -4,7 +4,23 @@
   "description": "Utility function for traversing properties on objects and arrays.",
   "main": "lib/idx.js",
   "files": [
+    "README.md",
+    "lib/"
   ],
-  "repository": "facebook/idx",
-  "license": "BSD-3-Clause"
+  "repository": "facebookincubator/idx",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "build": "babel src --out-dir lib --ignore test.js --copy-files",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-jest": "^19.0.0",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-preset-env": "^1.1.11",
+    "jest": "^19.0.2"
+  },
+  "jest": {
+    "rootDir": "src"
+  }
 }
