@@ -80,6 +80,27 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('transforms call expressions', () => {
+    expect(`
+      idx(base, _ => _.b.c(...foo)().d(bar, null, [...baz]));
+    `).toTransformInto(`
+      var _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      (_ref = base) != null ?
+        (_ref2 = _ref.b) != null ?
+          (_ref3 = _ref2.c) != null ?
+            (_ref4 = _ref3(...foo)) != null ?
+              (_ref5 = _ref4()) != null ?
+                (_ref6 = _ref5.d) != null ?
+                  _ref6(bar, null, [...baz]) :
+                _ref6 :
+              _ref5 :
+            _ref4 :
+          _ref3 :
+        _ref2 :
+      _ref;
+    `);
+  });
+
   it('transforms bracket notation', () => {
     expect(`
       idx(base, _ => _["b"][0][c + d]);
@@ -89,6 +110,27 @@ describe('babel-plugin-idx', () => {
         (_ref2 = _ref["b"]) != null ?
           (_ref3 = _ref2[0]) != null ?
             _ref3[c + d] :
+          _ref3 :
+        _ref2 :
+      _ref;
+    `);
+  });
+
+  it('transforms bracket notation call expressions', () => {
+    expect(`
+      idx(base, _ => _["b"](...foo)()[0][c + d](bar, null, [...baz]));
+    `).toTransformInto(`
+      var _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      (_ref = base) != null ?
+        (_ref2 = _ref["b"]) != null ?
+          (_ref3 = _ref2(...foo)) != null ?
+            (_ref4 = _ref3()) != null ?
+              (_ref5 = _ref4[0]) != null ?
+                (_ref6 = _ref5[c + d]) != null ?
+                  _ref6(bar, null, [...baz]) :
+                _ref6 :
+              _ref5 :
+            _ref4 :
           _ref3 :
         _ref2 :
       _ref;

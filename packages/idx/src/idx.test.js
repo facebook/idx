@@ -30,6 +30,13 @@ describe('idx', () => {
     expect(() => idx(a, _ => _.b.c)).toThrow(error);
   });
 
+  it('throws a `TypeError` when calling non-methods', () => {
+    const a = {b: 'I am a string'};
+    expect(() => idx(a, _ => _.b())).toThrow(
+      new TypeError('_.b is not a function'),
+    );
+  });
+
   it('returns null for intermediate null properties', () => {
     const a = {b: null};
     expect(idx(a, _ => _.b.c)).toEqual(null);
