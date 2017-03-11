@@ -49,6 +49,16 @@ module.exports = context => {
       this.deepestExpression = expression;
     }
 
+    appendMethodCall(args) {
+      const uid = this.generateUid('ref').name;
+      const callExpression = t.CallExpression(
+        t.Identifier(uid),
+        args || [],
+      );
+      this.addLevel(callExpression, uid);
+      this.uids.push(uid);
+    }
+
     appendPropertyAccess(property, computed) {
       const uid = this.generateUid('ref').name;
       const accessedProperty = t.MemberExpression(
@@ -94,7 +104,9 @@ module.exports = context => {
   }
 
   function getExpressionChainBase(node) {
-    if (t.isMemberExpression(node)) {
+    if (t.isCallExpression(node)) {
+      return getExpressionChainBase(node.callee);
+    } else if (t.isMemberExpression(node)) {
       return getExpressionChainBase(node.object);
     } else {
       return node;
@@ -110,7 +122,15 @@ module.exports = context => {
   }
 
   function constructTernary(base, node, generateUid) {
-    if (t.isMemberExpression(node)) {
+    if (t.isCallExpression(node)) {
+      const transformedObject = constructTernary(
+        base,
+        node.callee,
+        generateUid,
+      );
+      transformedObject.appendMethodCall(node.arguments);
+      return transformedObject;
+    } else if (t.isMemberExpression(node)) {
       const transformedObject = constructTernary(
         base,
         node.object,
