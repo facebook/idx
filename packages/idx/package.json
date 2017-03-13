@@ -1,6 +1,6 @@
 {
   "name": "idx",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Utility function for traversing properties on objects and arrays.",
   "main": "lib/idx.js",
   "files": [
