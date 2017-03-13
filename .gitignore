@@ -1,4 +1,5 @@
 .DS_Store
 lib/
 node_modules/
+packages/*/README.md
 *.log

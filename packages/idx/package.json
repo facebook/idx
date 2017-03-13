@@ -11,6 +11,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "build": "babel src --out-dir lib --ignore test.js --copy-files",
+    "prepublish": "yarn run build && cp ../../README.md .",
     "test": "jest"
   },
   "devDependencies": {
