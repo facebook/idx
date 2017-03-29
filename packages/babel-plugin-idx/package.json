@@ -17,6 +17,7 @@
   "devDependencies": {
     "babel-cli": "^6.23.0",
     "babel-jest": "^19.0.0",
+    "babel-plugin-transform-async-to-generator": "^6.22.0",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-env": "^1.1.11",
     "jest": "^19.0.2"
