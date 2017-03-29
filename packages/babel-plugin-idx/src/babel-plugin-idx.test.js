@@ -12,13 +12,42 @@
 jest.autoMockOff();
 
 const {transform: babelTransform} = require('babel-core');
+const babelPluginIdx = require('./babel-plugin-idx');
+const transformAsyncToGenerator = require('babel-plugin-transform-async-to-generator');
 
-function transform(source) {
+function transform(source, plugins) {
   return babelTransform(source, {
-    plugins: [require('./babel-plugin-idx')],
+    plugins: plugins || [babelPluginIdx],
     babelrc: false,
   }).code;
 }
+
+const asyncToGeneratorHelperCode = `
+  function _asyncToGenerator(fn) {
+    return function () {
+      var gen = fn.apply(this, arguments);
+      return new Promise(function (resolve, reject) {
+        function step(key, arg) {
+          try {
+            var info = gen[key](arg);
+            var value = info.value;
+          } catch (error) {
+            reject(error); return;
+          } if (info.done) {
+            resolve(value);
+          } else {
+            return Promise.resolve(value).then(function (value) {
+              step("next", value);
+            }, function (err) {
+              step("throw", err);
+            });
+          }
+        }
+        return step("next");
+      });
+    };
+  }
+`;
 
 describe('babel-plugin-idx', () => {
   beforeEach(() => {
@@ -29,7 +58,9 @@ describe('babel-plugin-idx', () => {
     jasmine.addMatchers({
       toTransformInto: () => ({
         compare(input, expected) {
-          const actual = transform(input);
+          const plugins = typeof input === 'string' ? null : input.plugins;
+          const code = typeof input === 'string' ? input : input.code;
+          const actual = transform(code, plugins);
           const pass =
             stringByTrimmingSpaces(actual) ===
             stringByTrimmingSpaces(expected);
@@ -238,6 +269,70 @@ describe('babel-plugin-idx', () => {
             _ref2[c] :
           _ref2 :
         _ref;
+    `);
+  });
+
+  it('transforms idx calls inside async functions (plugin order #1)', () => {
+    expect({
+      plugins: [babelPluginIdx, transformAsyncToGenerator],
+      code: `
+        async function f() {
+          idx(base, _ => _.b.c.d.e);
+        }
+      `,
+    }).toTransformInto(`
+      let f = (() => {
+        var _ref5 = _asyncToGenerator(function* () {
+          var _ref, _ref2, _ref3, _ref4;
+          (_ref = base) != null ?
+            (_ref2 = _ref.b) != null ?
+              (_ref3 = _ref2.c) != null ?
+                (_ref4 = _ref3.d) != null ?
+                  _ref4.e :
+                _ref4 :
+              _ref3 :
+            _ref2 :
+          _ref;
+        });
+
+        return function f() {
+          return _ref5.apply(this, arguments);
+        };
+      })();
+
+      ${asyncToGeneratorHelperCode}
+    `);
+  });
+
+  it('transforms idx calls inside async functions (plugin order #2)', () => {
+    expect({
+      plugins: [transformAsyncToGenerator, babelPluginIdx],
+      code: `
+        async function f() {
+          idx(base, _ => _.b.c.d.e);
+        }
+      `,
+    }).toTransformInto(`
+      let f = (() => {
+        var _ref5 = _asyncToGenerator(function* () {
+          var _ref, _ref2, _ref3, _ref4;
+          (_ref = base) != null ?
+            (_ref2 = _ref.b) != null ?
+              (_ref3 = _ref2.c) != null ?
+                (_ref4 = _ref3.d) != null ?
+                  _ref4.e :
+                _ref4 :
+              _ref3 :
+            _ref2 :
+          _ref;
+        });
+
+        return function f() {
+          return _ref5.apply(this, arguments);
+        };
+      })();
+
+      ${asyncToGeneratorHelperCode}
     `);
   });
 });

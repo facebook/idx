@@ -143,23 +143,33 @@ module.exports = context => {
     }
   }
 
+  const idxVisitor = {
+    CallExpression(path) {
+      const node = path.node;
+      if (isIdxCall(node)) {
+        checkIdxArguments(node.arguments);
+        const ternary = constructTernary(
+          node.arguments[0],
+          node.arguments[1].body,
+          path.scope.generateUidIdentifier.bind(path.scope),
+        );
+        path.replaceWith(ternary.expression);
+        for (let ii = 0; ii < ternary.uids.length; ii++) {
+          const uid = ternary.uids[ii];
+          path.scope.push({id: t.Identifier(uid)});
+        }
+      }
+    },
+  };
+
   return {
     visitor: {
-      CallExpression(path) {
-        const node = path.node;
-        if (isIdxCall(node)) {
-          checkIdxArguments(node.arguments);
-          const ternary = constructTernary(
-            node.arguments[0],
-            node.arguments[1].body,
-            path.scope.generateUidIdentifier.bind(path.scope),
-          );
-          path.replaceWith(ternary.expression);
-          for (let ii = 0; ii < ternary.uids.length; ii++) {
-            const uid = ternary.uids[ii];
-            path.scope.push({id: t.Identifier(uid)});
-          }
-        }
+      Program(path) {
+        // We're very strict about the shape of idx. Some transforms, like
+        // "babel-plugin-transform-async-to-generator", will convert arrow
+        // functions inside async functions into regular functions. So we do
+        // our transformation before any one else interferes.
+        path.traverse(idxVisitor);
       },
     },
   };
