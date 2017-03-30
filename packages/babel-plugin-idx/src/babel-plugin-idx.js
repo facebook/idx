@@ -12,6 +12,8 @@
 module.exports = context => {
   const t = context.types;
 
+  const idxRe = /\bidx\b/;
+
   class TransformedTernary {
     constructor(expression, generateUid) {
       this.generateUid = generateUid;
@@ -164,12 +166,15 @@ module.exports = context => {
 
   return {
     visitor: {
-      Program(path) {
-        // We're very strict about the shape of idx. Some transforms, like
-        // "babel-plugin-transform-async-to-generator", will convert arrow
-        // functions inside async functions into regular functions. So we do
-        // our transformation before any one else interferes.
-        path.traverse(idxVisitor);
+      Program(path, state) {
+        // If there can't reasonably be an idx call, exit fast.
+        if (path.scope.getOwnBinding('idx') || idxRe.test(state.file.code)) {
+          // We're very strict about the shape of idx. Some transforms, like
+          // "babel-plugin-transform-async-to-generator", will convert arrow
+          // functions inside async functions into regular functions. So we do
+          // our transformation before any one else interferes.
+          path.traverse(idxVisitor);
+        }
       },
     },
   };
