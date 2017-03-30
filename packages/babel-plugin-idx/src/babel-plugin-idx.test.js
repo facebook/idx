@@ -335,4 +335,56 @@ describe('babel-plugin-idx', () => {
       ${asyncToGeneratorHelperCode}
     `);
   });
+
+  it('transforms idx calls when an idx import binding is in scope', () => {
+    expect(`
+      import idx from 'idx';
+      idx(base, _ => _.b);
+    `).toTransformInto(`
+      var _ref;
+      import idx from 'idx';
+      (_ref = base) != null ? _ref.b : _ref;
+    `);
+  });
+
+  it('transforms idx calls when an idx const binding is in scope', () => {
+    expect(`
+      const idx = require('idx');
+      idx(base, _ => _.b);
+    `).toTransformInto(`
+      var _ref;
+      const idx = require('idx');
+      (_ref = base) != null ? _ref.b : _ref;
+    `);
+  });
+
+  it('transforms deep idx calls when an idx import binding is in scope', () => {
+    expect(`
+      import idx from 'idx';
+      function f() {
+        idx(base, _ => _.b);
+      }
+    `).toTransformInto(`
+      import idx from 'idx';
+      function f() {
+        var _ref;
+        (_ref = base) != null ? _ref.b : _ref;
+      }
+    `);
+  });
+
+  it('transforms deep idx calls when an idx const binding is in scope', () => {
+    expect(`
+      const idx = require('idx');
+      function f() {
+        idx(base, _ => _.b);
+      }
+    `).toTransformInto(`
+      const idx = require('idx');
+      function f() {
+        var _ref;
+        (_ref = base) != null ? _ref.b : _ref;
+      }
+    `);
+  });
 });
