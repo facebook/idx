@@ -73,24 +73,31 @@ module.exports = context => {
     }
   }
 
-  function checkIdxArguments(args) {
+  function checkIdxArguments(file, node) {
+    const args = node.arguments;
     if (args.length !== 2) {
-      throw new Error('The `idx` function takes exactly two arguments.');
+      throw file.buildCodeFrameError(
+        node,
+        'The `idx` function takes exactly two arguments.',
+      );
     }
     const arrowFunction = args[1];
     if (!t.isArrowFunctionExpression(arrowFunction)) {
-      throw new Error(
+      throw file.buildCodeFrameError(
+        arrowFunction,
         'The second argument supplied to `idx` must be an arrow function.',
       );
     }
     if (!t.isExpression(arrowFunction.body)) {
-      throw new Error(
+      throw file.buildCodeFrameError(
+        arrowFunction.body,
         'The body of the arrow function supplied to `idx` must be a single ' +
         'expression (without curly braces).',
       );
     }
     if (arrowFunction.params.length !== 1) {
-      throw new Error(
+      throw file.buildCodeFrameError(
+        arrowFunction.params[2] || arrowFunction,
         'The arrow function supplied to `idx` must take exactly one parameter.',
       );
     }
@@ -98,7 +105,8 @@ module.exports = context => {
     if (!t.isIdentifier(arrowFunction.params[0]) ||
         !t.isIdentifier(bodyChainBase) ||
         arrowFunction.params[0].name !== bodyChainBase.name) {
-      throw new Error(
+      throw file.buildCodeFrameError(
+        arrowFunction.params[0],
         'The parameter of the arrow function supplied to `idx` must match ' +
         'the base of the body expression.',
       );
@@ -146,10 +154,10 @@ module.exports = context => {
   }
 
   const idxVisitor = {
-    CallExpression(path) {
+    CallExpression(path, state) {
       const node = path.node;
       if (isIdxCall(node)) {
-        checkIdxArguments(node.arguments);
+        checkIdxArguments(state.file, node);
         const ternary = constructTernary(
           node.arguments[0],
           node.arguments[1].body,
@@ -173,7 +181,7 @@ module.exports = context => {
           // "babel-plugin-transform-async-to-generator", will convert arrow
           // functions inside async functions into regular functions. So we do
           // our transformation before any one else interferes.
-          path.traverse(idxVisitor);
+          path.traverse(idxVisitor, state);
         }
       },
     },
