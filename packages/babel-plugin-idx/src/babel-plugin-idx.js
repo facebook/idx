@@ -14,65 +14,6 @@ module.exports = context => {
 
   const idxRe = /\bidx\b/;
 
-  class TransformedTernary {
-    constructor(expression, generateUid) {
-      this.generateUid = generateUid;
-
-      this.uids = [];
-      this.expression = expression;
-      this.deepestTernary = null;
-      this.deepestExpression = expression;
-    }
-
-    constructTernary(oldExpression, newExpression, uid) {
-      return t.ConditionalExpression(
-        t.BinaryExpression(
-          '!=',
-          t.AssignmentExpression('=', t.Identifier(uid), oldExpression),
-          t.NullLiteral(),
-        ),
-        newExpression,
-        t.Identifier(uid),
-      );
-    }
-
-    addLevel(expression, uid) {
-      const ternary = this.constructTernary(
-        this.deepestExpression,
-        expression,
-        uid,
-      );
-      if (this.deepestTernary === null) {
-        this.expression = ternary;
-      } else {
-        this.deepestTernary.consequent = ternary;
-      }
-      this.deepestTernary = ternary;
-      this.deepestExpression = expression;
-    }
-
-    appendMethodCall(args) {
-      const uid = this.generateUid('ref').name;
-      const callExpression = t.CallExpression(
-        t.Identifier(uid),
-        args || [],
-      );
-      this.addLevel(callExpression, uid);
-      this.uids.push(uid);
-    }
-
-    appendPropertyAccess(property, computed) {
-      const uid = this.generateUid('ref').name;
-      const accessedProperty = t.MemberExpression(
-        t.Identifier(uid),
-        property,
-        computed,
-      );
-      this.addLevel(accessedProperty, uid);
-      this.uids.push(uid);
-    }
-  }
-
   function checkIdxArguments(file, node) {
     const args = node.arguments;
     if (args.length !== 2) {
@@ -101,73 +42,86 @@ module.exports = context => {
         'The arrow function supplied to `idx` must take exactly one parameter.',
       );
     }
-    const bodyChainBase = getExpressionChainBase(arrowFunction.body);
-    if (!t.isIdentifier(arrowFunction.params[0]) ||
-        !t.isIdentifier(bodyChainBase) ||
-        arrowFunction.params[0].name !== bodyChainBase.name) {
+    const input = arrowFunction.params[0];
+    if (!t.isIdentifier(input)) {
       throw file.buildCodeFrameError(
         arrowFunction.params[0],
-        'The parameter of the arrow function supplied to `idx` must match ' +
-        'the base of the body expression.',
+        'The parameter supplied to `idx` must be an identifier.',
       );
     }
   }
 
-  function getExpressionChainBase(node) {
-    if (t.isCallExpression(node)) {
-      return getExpressionChainBase(node.callee);
-    } else if (t.isMemberExpression(node)) {
-      return getExpressionChainBase(node.object);
+  function makeCondition(node, state, inside) {
+    if (inside) {
+      return t.ConditionalExpression(
+        t.BinaryExpression(
+          '!=',
+          t.AssignmentExpression('=', state.temp, node),
+          t.NullLiteral(),
+        ),
+        inside,
+        state.temp,
+      );
     } else {
       return node;
     }
   }
 
-  function isIdxCall(node) {
-    return (
-      t.isCallExpression(node) &&
-      t.isIdentifier(node.callee) &&
-      node.callee.name === 'idx'
-    );
-  }
-
-  function constructTernary(base, node, generateUid) {
+  function makeChain(node, state, inside) {
     if (t.isCallExpression(node)) {
-      const transformedObject = constructTernary(
-        base,
+      return makeChain(
         node.callee,
-        generateUid,
+        state,
+        makeCondition(
+          t.CallExpression(state.temp, node.arguments),
+          state,
+          inside,
+        ),
       );
-      transformedObject.appendMethodCall(node.arguments);
-      return transformedObject;
     } else if (t.isMemberExpression(node)) {
-      const transformedObject = constructTernary(
-        base,
+      return makeChain(
         node.object,
-        generateUid,
+        state,
+        makeCondition(
+          t.MemberExpression(state.temp, node.property, node.computed),
+          state,
+          inside,
+        ),
       );
-      transformedObject.appendPropertyAccess(node.property, node.computed);
-      return transformedObject;
+    } else if (t.isIdentifier(node)) {
+      if (node.name !== state.base.name) {
+        throw state.file.buildCodeFrameError(
+          node,
+          'The parameter of the arrow function supplied to `idx` must match ' +
+          'the base of the body expression.',
+        );
+      }
+      return makeCondition(state.input, state, inside);
     } else {
-      return new TransformedTernary(base, generateUid);
+      throw state.file.buildCodeFrameError(
+        node,
+        'The `idx` body can only be composed of properties and methods.',
+      );
     }
   }
 
   const idxVisitor = {
     CallExpression(path, state) {
       const node = path.node;
-      if (isIdxCall(node)) {
+      if (t.isIdentifier(node.callee) && node.callee.name === 'idx') {
         checkIdxArguments(state.file, node);
-        const ternary = constructTernary(
-          node.arguments[0],
+        const temp = path.scope.generateUidIdentifier('ref');
+        const replacement = makeChain(
           node.arguments[1].body,
-          path.scope.generateUidIdentifier.bind(path.scope),
+          {
+            file: state.file,
+            input: node.arguments[0],
+            base: node.arguments[1].params[0],
+            temp,
+          },
         );
-        path.replaceWith(ternary.expression);
-        for (let ii = 0; ii < ternary.uids.length; ii++) {
-          const uid = ternary.uids[ii];
-          path.scope.push({id: t.Identifier(uid)});
-        }
+        path.scope.push({id: temp});
+        path.replaceWith(replacement);
       }
     },
   };

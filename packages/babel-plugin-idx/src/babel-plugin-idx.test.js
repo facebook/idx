@@ -98,15 +98,15 @@ describe('babel-plugin-idx', () => {
     expect(`
       idx(base, _ => _.b.c.d.e);
     `).toTransformInto(`
-      var _ref, _ref2, _ref3, _ref4;
+      var _ref;
       (_ref = base) != null ?
-        (_ref2 = _ref.b) != null ?
-          (_ref3 = _ref2.c) != null ?
-            (_ref4 = _ref3.d) != null ?
-              _ref4.e :
-            _ref4 :
-          _ref3 :
-        _ref2 :
+        (_ref = _ref.b) != null ?
+          (_ref = _ref.c) != null ?
+            (_ref = _ref.d) != null ?
+              _ref.e :
+            _ref :
+          _ref :
+        _ref :
       _ref;
     `);
   });
@@ -115,19 +115,19 @@ describe('babel-plugin-idx', () => {
     expect(`
       idx(base, _ => _.b.c(...foo)().d(bar, null, [...baz]));
     `).toTransformInto(`
-      var _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var _ref;
       (_ref = base) != null ?
-        (_ref2 = _ref.b) != null ?
-          (_ref3 = _ref2.c) != null ?
-            (_ref4 = _ref3(...foo)) != null ?
-              (_ref5 = _ref4()) != null ?
-                (_ref6 = _ref5.d) != null ?
-                  _ref6(bar, null, [...baz]) :
-                _ref6 :
-              _ref5 :
-            _ref4 :
-          _ref3 :
-        _ref2 :
+        (_ref = _ref.b) != null ?
+          (_ref = _ref.c) != null ?
+            (_ref = _ref(...foo)) != null ?
+              (_ref = _ref()) != null ?
+                (_ref = _ref.d) != null ?
+                  _ref(bar, null, [...baz]) :
+                _ref :
+              _ref :
+            _ref :
+          _ref :
+        _ref :
       _ref;
     `);
   });
@@ -136,13 +136,13 @@ describe('babel-plugin-idx', () => {
     expect(`
       idx(base, _ => _["b"][0][c + d]);
     `).toTransformInto(`
-      var _ref, _ref2, _ref3;
+      var _ref;
       (_ref = base) != null ?
-        (_ref2 = _ref["b"]) != null ?
-          (_ref3 = _ref2[0]) != null ?
-            _ref3[c + d] :
-          _ref3 :
-        _ref2 :
+        (_ref = _ref["b"]) != null ?
+          (_ref = _ref[0]) != null ?
+            _ref[c + d] :
+          _ref :
+        _ref :
       _ref;
     `);
   });
@@ -151,19 +151,19 @@ describe('babel-plugin-idx', () => {
     expect(`
       idx(base, _ => _["b"](...foo)()[0][c + d](bar, null, [...baz]));
     `).toTransformInto(`
-      var _ref, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var _ref;
       (_ref = base) != null ?
-        (_ref2 = _ref["b"]) != null ?
-          (_ref3 = _ref2(...foo)) != null ?
-            (_ref4 = _ref3()) != null ?
-              (_ref5 = _ref4[0]) != null ?
-                (_ref6 = _ref5[c + d]) != null ?
-                  _ref6(bar, null, [...baz]) :
-                _ref6 :
-              _ref5 :
-            _ref4 :
-          _ref3 :
-        _ref2 :
+        (_ref = _ref["b"]) != null ?
+          (_ref = _ref(...foo)) != null ?
+            (_ref = _ref()) != null ?
+              (_ref = _ref[0]) != null ?
+                (_ref = _ref[c + d]) != null ?
+                  _ref(bar, null, [...baz]) :
+                _ref :
+              _ref :
+            _ref :
+          _ref :
+        _ref :
       _ref;
     `);
   });
@@ -172,17 +172,17 @@ describe('babel-plugin-idx', () => {
     expect(`
       idx(base, _ => _.a["b"].c[d[e[f]]].g);
     `).toTransformInto(`
-      var _ref, _ref2, _ref3, _ref4, _ref5;
+      var _ref;
       (_ref = base) != null ?
-        (_ref2 = _ref.a) != null ?
-          (_ref3 = _ref2["b"]) != null ?
-            (_ref4 = _ref3.c) != null ?
-              (_ref5 = _ref4[d[e[f]]]) != null ?
-                _ref5.g :
-              _ref5 :
-            _ref4 :
-          _ref3 :
-        _ref2 :
+        (_ref = _ref.a) != null ?
+          (_ref = _ref["b"]) != null ?
+            (_ref = _ref.c) != null ?
+              (_ref = _ref[d[e[f]]]) != null ?
+                _ref.g :
+              _ref :
+            _ref :
+          _ref :
+        _ref :
       _ref;
     `);
   });
@@ -206,12 +206,20 @@ describe('babel-plugin-idx', () => {
     );
   });
 
-  it('throws if the arrow function has an invalid body expression', () => {
+  it('throws if the arrow function has an invalid base', () => {
     expect(`
       idx(base, a => b.property)
     `).toThrowTransformError(
       'The parameter of the arrow function supplied to `idx` must match the ' +
       'base of the body expression.',
+    );
+  });
+
+  it('throws if the arrow function expression has non-properties/methods', () => {
+    expect(`
+      idx(base, _ => (_.a++).b.c);
+    `).toThrowTransformError(
+      'The `idx` body can only be composed of properties and methods.',
     );
   });
 
@@ -261,13 +269,13 @@ describe('babel-plugin-idx', () => {
       paddingStatement();
       a = idx(base, _ => _.b[c]);
     `).toTransformInto(`
-      var _ref, _ref2;
+      var _ref;
       paddingStatement();
       a =
         (_ref = base) != null ?
-          (_ref2 = _ref.b) != null ?
-            _ref2[c] :
-          _ref2 :
+          (_ref = _ref.b) != null ?
+            _ref[c] :
+          _ref :
         _ref;
     `);
   });
@@ -282,21 +290,21 @@ describe('babel-plugin-idx', () => {
       `,
     }).toTransformInto(`
       let f = (() => {
-        var _ref5 = _asyncToGenerator(function* () {
-          var _ref, _ref2, _ref3, _ref4;
+        var _ref2 = _asyncToGenerator(function* () {
+          var _ref;
           (_ref = base) != null ?
-            (_ref2 = _ref.b) != null ?
-              (_ref3 = _ref2.c) != null ?
-                (_ref4 = _ref3.d) != null ?
-                  _ref4.e :
-                _ref4 :
-              _ref3 :
-            _ref2 :
+            (_ref = _ref.b) != null ?
+              (_ref = _ref.c) != null ?
+                (_ref = _ref.d) != null ?
+                  _ref.e :
+                _ref :
+              _ref :
+            _ref :
           _ref;
         });
 
         return function f() {
-          return _ref5.apply(this, arguments);
+          return _ref2.apply(this, arguments);
         };
       })();
 
@@ -314,21 +322,21 @@ describe('babel-plugin-idx', () => {
       `,
     }).toTransformInto(`
       let f = (() => {
-        var _ref5 = _asyncToGenerator(function* () {
-          var _ref, _ref2, _ref3, _ref4;
+        var _ref2 = _asyncToGenerator(function* () {
+          var _ref;
           (_ref = base) != null ?
-            (_ref2 = _ref.b) != null ?
-              (_ref3 = _ref2.c) != null ?
-                (_ref4 = _ref3.d) != null ?
-                  _ref4.e :
-                _ref4 :
-              _ref3 :
-            _ref2 :
+            (_ref = _ref.b) != null ?
+              (_ref = _ref.c) != null ?
+                (_ref = _ref.d) != null ?
+                  _ref.e :
+                _ref :
+              _ref :
+            _ref :
           _ref;
         });
 
         return function f() {
-          return _ref5.apply(this, arguments);
+          return _ref2.apply(this, arguments);
         };
       })();
 
@@ -385,6 +393,21 @@ describe('babel-plugin-idx', () => {
         var _ref;
         (_ref = base) != null ? _ref.b : _ref;
       }
+    `);
+  });
+
+  it('transforms base call expressions', () => {
+    expect(`
+      idx(base, _ => _().b.c);
+    `).toTransformInto(`
+      var _ref;
+      (_ref = base) != null ?
+        (_ref = _ref()) != null ?
+          (_ref = _ref.b) != null ?
+            _ref.c :
+          _ref :
+        _ref :
+      _ref;
     `);
   });
 });
