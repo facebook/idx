@@ -3,6 +3,7 @@
   "scripts": {
     "build": "lerna run build",
     "lint": "eslint --ignore-path .gitignore .",
+    "postinstall": "lerna bootstrap --concurrency=1",
     "test": "lerna run test"
   },
   "devDependencies": {

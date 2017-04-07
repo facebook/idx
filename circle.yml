@@ -1,0 +1,14 @@
+machine:
+  node:
+    version: 4
+
+dependencies:
+  cache_directories:
+    - ~/.cache/yarn
+  override:
+    - yarn
+
+test:
+  override:
+    - yarn test
+    - yarn lint
