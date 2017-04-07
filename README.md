@@ -12,7 +12,7 @@ of maybe-typed properties.
 
 Consider the following type:
 
-```
+```javascript
 const props: {
   user: ?{
     name: string,
@@ -23,7 +23,7 @@ const props: {
 
 Getting to the friends of my first friend would resemble:
 
-```
+```javascript
 props.user &&
 props.user.friends &&
 props.user.friends[0] &&
@@ -32,7 +32,7 @@ props.user.friends[0].friends
 
 Instead, `idx` allows us to safely write:
 
-```
+```javascript
 idx(props, _ => _.user.friends[0].friends)
 ```
 
@@ -45,7 +45,7 @@ The `idx` runtime function exists for the purpose of illustrating the expected
 behavior and is not meant to be executed. The `idx` function is used in
 conjunction with a Babel plugin that replaces it with better performing code:
 
-```
+```javascript
 props.user == null ? props.user :
 props.user.friends == null ? props.user.friends :
 props.user.friends[0] == null ? props.user.friends[0] :
