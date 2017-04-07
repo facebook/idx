@@ -14,6 +14,7 @@ jest.autoMockOff();
 const {transform: babelTransform} = require('babel-core');
 const babelPluginIdx = require('./babel-plugin-idx');
 const transformAsyncToGenerator = require('babel-plugin-transform-async-to-generator');
+const vm = require('vm');
 
 function transform(source, plugins) {
   return babelTransform(source, {
@@ -88,6 +89,16 @@ describe('babel-plugin-idx', () => {
           return {
             pass: false,
             message: 'Expected transform to throw "' + expected + '".',
+          };
+        },
+      }),
+      toReturn: () => ({
+        compare(input, expected) {
+          const code = transform(input);
+          const actual = vm.runInNewContext(code);
+          return {
+            pass: actual === expected,
+            message: 'Expected "' + expected + '" but got "' + actual + '".',
           };
         },
       }),
@@ -409,5 +420,49 @@ describe('babel-plugin-idx', () => {
         _ref :
       _ref;
     `);
+  });
+
+  describe('functional', () => {
+    it('works with only properties', () => {
+      expect(`
+        const base = {a: {b: {c: 2}}};
+        idx(base, _ => _.a.b.c);
+      `).toReturn(2);
+    });
+
+    it('works with a method in the start', () => {
+      expect(`
+        const base = {a: {b: {c: () => 2}}};
+        idx(base, _ => _.a.b.c());
+      `).toReturn(2);
+    });
+
+    it('works with a method in the end', () => {
+      expect(`
+        const base = () => ({a: {b: {c: 2}}});
+        idx(base, _ => _().a.b.c);
+      `).toReturn(2);
+    });
+
+    it('works with a method in the middle', () => {
+      expect(`
+        const base = {a: () => ({b: {c: 2}})};
+        idx(base, _ => _.a().b.c);
+      `).toReturn(2);
+    });
+
+    it('works with missing properties', () => {
+      expect(`
+        const base = {a: {b: {}}};
+        idx(base, _ => _.a.b.c);
+      `).toReturn(undefined);
+    });
+
+    it('works with null properties', () => {
+      expect(`
+        const base = {a: {b: null}};
+        idx(base, _ => _.a.b.c);
+      `).toReturn(null);
+    });
   });
 });
