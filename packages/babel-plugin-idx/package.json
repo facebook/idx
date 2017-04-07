@@ -23,6 +23,7 @@
     "jest": "^19.0.2"
   },
   "jest": {
+    "testEnvironment": "node",
     "rootDir": "src"
   }
 }
