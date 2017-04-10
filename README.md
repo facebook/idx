@@ -1,6 +1,4 @@
-# idx
-
-[![Circle Status](https://circleci.com/gh/facebookincubator/idx/tree/master.svg?style=shield&circle-token=da61f3cf105f22309c8ca0ba4482daa538bf5349)](https://circleci.com/gh/facebookincubator/idx)
+# idx [![Circle Status](https://circleci.com/gh/facebookincubator/idx/tree/master.svg?style=shield&circle-token=da61f3cf105f22309c8ca0ba4482daa538bf5349)](https://circleci.com/gh/facebookincubator/idx)
 
 `idx` is a utility function for traversing properties on objects and arrays.
 
