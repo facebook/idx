@@ -110,17 +110,16 @@ module.exports = context => {
       const node = path.node;
       if (t.isIdentifier(node.callee) && node.callee.name === 'idx') {
         checkIdxArguments(state.file, node);
-        const temp = path.scope.generateUidIdentifier('ref');
         const replacement = makeChain(
           node.arguments[1].body,
           {
             file: state.file,
             input: node.arguments[0],
             base: node.arguments[1].params[0],
-            temp,
+            temp: state.idx.temp,
           },
         );
-        path.scope.push({id: temp});
+        state.idx.calls++;
         path.replaceWith(replacement);
       }
     },
@@ -131,11 +130,20 @@ module.exports = context => {
       Program(path, state) {
         // If there can't reasonably be an idx call, exit fast.
         if (path.scope.getOwnBinding('idx') || idxRe.test(state.file.code)) {
+          state.idx = {
+            temp: path.scope.generateUidIdentifier('ref'),
+            calls: 0,
+          };
+
           // We're very strict about the shape of idx. Some transforms, like
           // "babel-plugin-transform-async-to-generator", will convert arrow
           // functions inside async functions into regular functions. So we do
           // our transformation before any one else interferes.
           path.traverse(idxVisitor, state);
+
+          if (state.idx.calls) {
+            path.scope.push({id: state.idx.temp});
+          }
         }
       },
     },

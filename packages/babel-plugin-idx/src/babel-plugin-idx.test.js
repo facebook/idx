@@ -300,9 +300,9 @@ describe('babel-plugin-idx', () => {
         }
       `,
     }).toTransformInto(`
+      var _ref;
       let f = (() => {
         var _ref2 = _asyncToGenerator(function* () {
-          var _ref;
           (_ref = base) != null ?
             (_ref = _ref.b) != null ?
               (_ref = _ref.c) != null ?
@@ -332,9 +332,9 @@ describe('babel-plugin-idx', () => {
         }
       `,
     }).toTransformInto(`
+      var _ref;
       let f = (() => {
         var _ref2 = _asyncToGenerator(function* () {
-          var _ref;
           (_ref = base) != null ?
             (_ref = _ref.b) != null ?
               (_ref = _ref.c) != null ?
@@ -384,9 +384,9 @@ describe('babel-plugin-idx', () => {
         idx(base, _ => _.b);
       }
     `).toTransformInto(`
+      var _ref;
       import idx from 'idx';
       function f() {
-        var _ref;
         (_ref = base) != null ? _ref.b : _ref;
       }
     `);
@@ -399,9 +399,9 @@ describe('babel-plugin-idx', () => {
         idx(base, _ => _.b);
       }
     `).toTransformInto(`
+      var _ref;
       const idx = require('idx');
       function f() {
-        var _ref;
         (_ref = base) != null ? _ref.b : _ref;
       }
     `);
@@ -419,6 +419,41 @@ describe('babel-plugin-idx', () => {
           _ref :
         _ref :
       _ref;
+    `);
+  });
+
+  it('transforms multiple idx calls while sharing the temp var', () => {
+    expect(`
+      idx(base1, _ => _.a);
+      function f() {
+        idx(base2, _ => _.b);
+        function g() {
+          idx(base3, _ => _.c);
+        }
+      }
+      function h() {
+        idx(base4, _ => _.d);
+      }
+    `).toTransformInto(`
+      var _ref;
+      (_ref = base1) != null ? _ref.a : _ref;
+      function f() {
+        (_ref = base2) != null ? _ref.b : _ref;
+        function g() {
+          (_ref = base3) != null ? _ref.c : _ref;
+        }
+      }
+      function h() {
+        (_ref = base4) != null ? _ref.d : _ref;
+      }
+    `);
+  });
+
+  it('does not add an idx temp var when there is no idx call', () => {
+    expect(`
+      idx;
+    `).toTransformInto(`
+      idx;
     `);
   });
 
