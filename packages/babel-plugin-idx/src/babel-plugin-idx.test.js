@@ -422,6 +422,17 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('transforms when the idx parent is a scope creating expression', () => {
+    expect(`
+      (() => idx(base, _ => _.b));
+    `).toTransformInto(`
+      () => {
+        var _ref;
+        return (_ref = base) != null ? _ref.b : _ref;
+      };
+    `);
+  });
+
   describe('functional', () => {
     it('works with only properties', () => {
       expect(`

@@ -120,8 +120,8 @@ module.exports = context => {
             temp,
           },
         );
-        path.scope.push({id: temp});
         path.replaceWith(replacement);
+        path.scope.push({id: temp});
       }
     },
   };
