@@ -105,23 +105,92 @@ module.exports = context => {
     }
   }
 
+  function transform(path, state) {
+    const node = path.node;
+
+    if (!t.isCallExpression(node)) {
+      return false;
+    }
+
+    checkIdxArguments(state.file, node);
+    const temp = path.scope.generateUidIdentifier('ref');
+    const replacement = makeChain(
+      node.arguments[1].body,
+      {
+        file: state.file,
+        input: node.arguments[0],
+        base: node.arguments[1].params[0],
+        temp,
+      },
+    );
+    path.replaceWith(replacement);
+    path.scope.push({id: temp});
+
+    return true;
+  }
+
+  function getRequireIdxName(path) {
+    const node = path.node;
+
+    if (
+      t.isIdentifier(node.callee, {name: 'require'}) &&
+      t.isLiteral(node.arguments[0], {value: 'idx'}) &&
+      t.isIdentifier(path.parentPath.node.id)
+    ) {
+      return path.parentPath.node.id.name;
+    }
+
+    return null;
+  }
+
+  function getImportIdxName(path) {
+    if (
+      t.isStringLiteral(path.node.source, {value: 'idx'}) &&
+      path.node.specifiers.length === 1
+    ) {
+      return path.node.specifiers[0].local.name;
+    }
+
+    return null;
+  }
+
   const idxVisitor = {
     CallExpression(path, state) {
-      const node = path.node;
-      if (t.isIdentifier(node.callee) && node.callee.name === 'idx') {
-        checkIdxArguments(state.file, node);
-        const temp = path.scope.generateUidIdentifier('ref');
-        const replacement = makeChain(
-          node.arguments[1].body,
-          {
-            file: state.file,
-            input: node.arguments[0],
-            base: node.arguments[1].params[0],
-            temp,
-          },
-        );
-        path.replaceWith(replacement);
-        path.scope.push({id: temp});
+      const requireName = getRequireIdxName(path);
+
+      if (requireName === null) {
+        return;
+      }
+
+      const binding = path.scope.getBinding(requireName);
+
+      const allTransformed = binding.referencePaths.every(
+        node => transform(node.parentPath, state),
+      );
+
+      // If we have transformed all the references to `idx`
+      // we can remove the import.
+      if (allTransformed) {
+        path.parentPath.remove();
+      }
+    },
+    ImportDeclaration(path, state) {
+      const importName = getImportIdxName(path);
+
+      if (importName === null) {
+        return;
+      }
+
+      const binding = path.scope.getBinding(importName);
+
+      const allTransformed = binding.referencePaths.every(
+        node => transform(node.parentPath, state),
+      );
+
+      // If we have transformed all the references to `idx`
+      // we can remove the import.
+      if (allTransformed) {
+        path.remove();
       }
     },
   };
