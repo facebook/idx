@@ -133,6 +133,16 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('does not transform an idx function not imported from `idx`', () => {
+    expect(`
+      function idx() {}
+      idx(base, _ => _.b.c.d.e);
+    `).toTransformInto(`
+      function idx() {}
+      idx(base, _ => _.b.c.d.e);
+    `);
+  });
+
   it('does not remove the require if it cannot transform an expression', () => {
     expect(`
       const idx = require('idx');
