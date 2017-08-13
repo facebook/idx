@@ -14,6 +14,7 @@ jest.autoMockOff();
 const {transform: babelTransform} = require('babel-core');
 const babelPluginIdx = require('./babel-plugin-idx');
 const transformAsyncToGenerator = require('babel-plugin-transform-async-to-generator');
+const syntaxFlow = require('babel-plugin-syntax-flow');
 const vm = require('vm');
 
 function transform(source, plugins) {
@@ -76,7 +77,9 @@ describe('babel-plugin-idx', () => {
       toThrowTransformError: () => ({
         compare(input, expected) {
           try {
-            transform(input);
+            const plugins = typeof input === 'string' ? null : input.plugins;
+            const code = typeof input === 'string' ? input : input.code;
+            const actual = transform(code, plugins);
           } catch (error) {
             const actual = error.message.substr(9); // Strip "unknown:".
             return {
@@ -107,6 +110,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms member expressions', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => _.b.c.d.e);
     `).toTransformInto(`
       var _ref;
@@ -124,6 +128,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms call expressions', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => _.b.c(...foo)().d(bar, null, [...baz]));
     `).toTransformInto(`
       var _ref;
@@ -145,6 +150,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms bracket notation', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => _["b"][0][c + d]);
     `).toTransformInto(`
       var _ref;
@@ -160,6 +166,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms bracket notation call expressions', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => _["b"](...foo)()[0][c + d](bar, null, [...baz]));
     `).toTransformInto(`
       var _ref;
@@ -181,6 +188,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms combination of both member access notations', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => _.a["b"].c[d[e[f]]].g);
     `).toTransformInto(`
       var _ref;
@@ -200,6 +208,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms if the base is an expression', () => {
     expect(`
+      const idx = require('idx');
       idx(this.props.base[5], _ => _.property);
     `).toTransformInto(`
       var _ref;
@@ -211,6 +220,7 @@ describe('babel-plugin-idx', () => {
 
   it('throws if the arrow function has more than one param', () => {
     expect(`
+      const idx = require('idx');
       idx(base, (a, b) => _.property);
     `).toThrowTransformError(
       'The arrow function supplied to `idx` must take exactly one parameter.',
@@ -219,6 +229,7 @@ describe('babel-plugin-idx', () => {
 
   it('throws if the arrow function has an invalid base', () => {
     expect(`
+      const idx = require('idx');
       idx(base, a => b.property)
     `).toThrowTransformError(
       'The parameter of the arrow function supplied to `idx` must match the ' +
@@ -228,6 +239,7 @@ describe('babel-plugin-idx', () => {
 
   it('throws if the arrow function expression has non-properties/methods', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => (_.a++).b.c);
     `).toThrowTransformError(
       'The `idx` body can only be composed of properties and methods.',
@@ -236,6 +248,7 @@ describe('babel-plugin-idx', () => {
 
   it('throws if the body of the arrow function is not an expression', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => {})
     `).toThrowTransformError(
       'The body of the arrow function supplied to `idx` must be a single ' +
@@ -245,14 +258,17 @@ describe('babel-plugin-idx', () => {
 
   it('ignores non-function call idx', () => {
     expect(`
+      const idx = require('idx');
       result = idx;
     `).toTransformInto(`
+      const idx = require('idx');
       result = idx;
     `);
   });
 
   it('throws if idx is called with zero arguments', () => {
     expect(`
+      const idx = require('idx');
       idx();
     `).toThrowTransformError(
       'The `idx` function takes exactly two arguments.',
@@ -261,6 +277,7 @@ describe('babel-plugin-idx', () => {
 
   it('throws if idx is called with one argument', () => {
     expect(`
+      const idx = require('idx');
       idx(1);
     `).toThrowTransformError(
       'The `idx` function takes exactly two arguments.',
@@ -269,6 +286,7 @@ describe('babel-plugin-idx', () => {
 
   it('throws if idx is called with three arguments', () => {
     expect(`
+      const idx = require('idx');
       idx(1, 2, 3);
     `).toThrowTransformError(
       'The `idx` function takes exactly two arguments.',
@@ -277,6 +295,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms idx calls as part of another expressions', () => {
     expect(`
+      const idx = require('idx');
       paddingStatement();
       a = idx(base, _ => _.b[c]);
     `).toTransformInto(`
@@ -295,6 +314,7 @@ describe('babel-plugin-idx', () => {
     expect({
       plugins: [babelPluginIdx, transformAsyncToGenerator],
       code: `
+        const idx = require('idx');
         async function f() {
           idx(base, _ => _.b.c.d.e);
         }
@@ -327,6 +347,7 @@ describe('babel-plugin-idx', () => {
     expect({
       plugins: [transformAsyncToGenerator, babelPluginIdx],
       code: `
+        const idx = require('idx');
         async function f() {
           idx(base, _ => _.b.c.d.e);
         }
@@ -361,7 +382,6 @@ describe('babel-plugin-idx', () => {
       idx(base, _ => _.b);
     `).toTransformInto(`
       var _ref;
-      import idx from 'idx';
       (_ref = base) != null ? _ref.b : _ref;
     `);
   });
@@ -372,7 +392,6 @@ describe('babel-plugin-idx', () => {
       idx(base, _ => _.b);
     `).toTransformInto(`
       var _ref;
-      const idx = require('idx');
       (_ref = base) != null ? _ref.b : _ref;
     `);
   });
@@ -384,7 +403,6 @@ describe('babel-plugin-idx', () => {
         idx(base, _ => _.b);
       }
     `).toTransformInto(`
-      import idx from 'idx';
       function f() {
         var _ref;
         (_ref = base) != null ? _ref.b : _ref;
@@ -399,7 +417,6 @@ describe('babel-plugin-idx', () => {
         idx(base, _ => _.b);
       }
     `).toTransformInto(`
-      const idx = require('idx');
       function f() {
         var _ref;
         (_ref = base) != null ? _ref.b : _ref;
@@ -409,6 +426,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms base call expressions', () => {
     expect(`
+      const idx = require('idx');
       idx(base, _ => _().b.c);
     `).toTransformInto(`
       var _ref;
@@ -424,6 +442,7 @@ describe('babel-plugin-idx', () => {
 
   it('transforms when the idx parent is a scope creating expression', () => {
     expect(`
+      const idx = require('idx');
       (() => idx(base, _ => _.b));
     `).toTransformInto(`
       () => {
@@ -433,9 +452,184 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('throws if redefined before use', () => {
+    expect(`
+      let idx = require('idx');
+      idx = null;
+      idx(base, _ => _.b);
+    `).toThrowTransformError(
+      '`idx` cannot be redefined.',
+    );
+  });
+
+  it('throws if redefined after use', () => {
+    expect(`
+      let idx = require('idx');
+      idx(base, _ => _.b);
+      idx = null;
+    `).toThrowTransformError(
+      '`idx` cannot be redefined.',
+    );
+  });
+
+  it('throws if there is a scope conflict', () => {
+    expect(`
+      let idx = require('idx');
+      idx(base, _ => _.b);
+      function idx() {}
+    `).toThrowTransformError(
+      '`idx` cannot be redefined.',
+    );
+  });
+
+  it('handles sibling scopes with unique idx', () => {
+    expect(`
+      function aaa() {
+        const idx = require('idx');
+        idx(base, _ => _.b);
+      }
+      function bbb() {
+        const idx = require('idx');
+        idx(base, _ => _.b);
+      }
+    `).toTransformInto(`
+      function aaa() {
+        var _ref;
+        (_ref = base) != null ? _ref.b : _ref;
+      }
+      function bbb() {
+        var _ref2;
+        (_ref2 = base) != null ? _ref2.b : _ref2;
+      }
+    `);
+  });
+
+  it('handles sibling scopes with and without idx', () => {
+    expect(`
+      function aaa() {
+        const idx = require('idx');
+        idx(base, _ => _.b);
+      }
+      function bbb() {
+        idx(base, _ => _.b);
+      }
+    `).toTransformInto(`
+      function aaa() {
+        var _ref;
+        (_ref = base) != null ? _ref.b : _ref;
+      }
+      function bbb() {
+        idx(base, _ => _.b);
+      }
+    `);
+  });
+
+ it('handles nested scopes with shadowing', () => {
+    expect(`
+      const idx = require('idx');
+      idx(base, _ => _.b);
+      function aaa() {
+        idx(base, _ => _.b);
+        function bbb(idx) {
+          idx(base, _ => _.b);
+        }
+      }
+    `).toTransformInto(`
+      var _ref;
+      (_ref = base) != null ? _ref.b : _ref;
+      function aaa() {
+        var _ref2;
+        (_ref2 = base) != null ? _ref2.b : _ref2;
+        function bbb(idx) {
+          idx(base, _ => _.b);
+        }
+      }
+    `);
+  });
+
+  it('ignores type imports', () => {
+    expect({
+      plugins: [babelPluginIdx, syntaxFlow],
+      code: `
+        import type idx from 'idx';
+        idx(base, _ => _.b);
+      `,
+    }).toTransformInto(`
+      import type idx from 'idx';
+      idx(base, _ => _.b);
+    `);
+  });
+
+  it('throws on type import specifier', () => {
+    expect({
+      plugins: [babelPluginIdx, syntaxFlow],
+      code: `
+        import {type idx} from 'idx';
+        idx(base, _ => _.b);
+      `,
+    }).toThrowTransformError(
+      'The idx import must be a value import.'
+    );
+  });
+
+  it('throws on named idx import', () => {
+    expect(`
+      import {idx} from 'idx';
+      idx(base, _ => _.b);
+    `).toThrowTransformError(
+      'The idx import must be a default import.'
+    );
+  });
+
+  it('throws on namespace idx import', () => {
+    expect(`
+      import * as idx from 'idx';
+      idx(base, _ => _.b);
+    `).toThrowTransformError(
+      'The idx import must be a default import.'
+    );
+  });
+
+  it('throws on default plus named import', () => {
+    expect(`
+      import idx, {foo} from 'idx';
+      idx(base, _ => _.b);
+    `).toThrowTransformError(
+      'The idx import must be a single specifier.'
+    );
+  });
+
+  it('throws on default plus namespace import', () => {
+    expect(`
+      import idx, * as foo from 'idx';
+      idx(base, _ => _.b);
+    `).toThrowTransformError(
+      'The idx import must be a single specifier.'
+    );
+  });
+
+  it('handles named default imports', () => {
+    expect(`
+      import {default as idx} from 'idx';
+      idx(base, _ => _.b);
+    `).toTransformInto(`
+      var _ref;
+      (_ref = base) != null ? _ref.b : _ref;
+    `);
+  });
+
+  it('unused idx import should be left alone', () => {
+    expect(`
+      import idx from 'idx';
+    `).toTransformInto(`
+      import idx from 'idx';
+    `);
+  });
+
   describe('functional', () => {
     it('works with only properties', () => {
       expect(`
+        const idx = require('idx');
         const base = {a: {b: {c: 2}}};
         idx(base, _ => _.a.b.c);
       `).toReturn(2);
@@ -443,6 +637,7 @@ describe('babel-plugin-idx', () => {
 
     it('works with a method in the start', () => {
       expect(`
+        const idx = require('idx');
         const base = {a: {b: {c: () => 2}}};
         idx(base, _ => _.a.b.c());
       `).toReturn(2);
@@ -450,6 +645,7 @@ describe('babel-plugin-idx', () => {
 
     it('works with a method in the end', () => {
       expect(`
+        const idx = require('idx');
         const base = () => ({a: {b: {c: 2}}});
         idx(base, _ => _().a.b.c);
       `).toReturn(2);
@@ -457,6 +653,7 @@ describe('babel-plugin-idx', () => {
 
     it('works with a method in the middle', () => {
       expect(`
+        const idx = require('idx');
         const base = {a: () => ({b: {c: 2}})};
         idx(base, _ => _.a().b.c);
       `).toReturn(2);
@@ -464,6 +661,7 @@ describe('babel-plugin-idx', () => {
 
     it('works with missing properties', () => {
       expect(`
+        const idx = require('idx');
         const base = {a: {b: {}}};
         idx(base, _ => _.a.b.c);
       `).toReturn(undefined);
@@ -471,6 +669,7 @@ describe('babel-plugin-idx', () => {
 
     it('works with null properties', () => {
       expect(`
+        const idx = require('idx');
         const base = {a: {b: null}};
         idx(base, _ => _.a.b.c);
       `).toReturn(null);
