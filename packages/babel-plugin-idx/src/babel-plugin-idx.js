@@ -51,6 +51,49 @@ module.exports = context => {
     }
   }
 
+  function checkIdxBindingNode(file, node) {
+    if (t.isImportDeclaration(node)) {
+      if (node.specifiers.length === 0) {
+        throw file.buildCodeFrameError(
+          node,
+          'The idx import must have a value.',
+        );
+      }
+      if (node.specifiers.length > 1) {
+        throw file.buildCodeFrameError(
+          node.specifiers[1],
+          'The idx import must be a single specifier.',
+        );
+      }
+      // importKind is not "value" when it's not a type :/
+      // E.g. `import {type idx} from ...`
+      // Not to be confused with:
+      //    `import type idx from ...` or
+      //    `import type {idx} from ...`
+      if (node.specifiers[0].importKind != null) {
+        throw file.buildCodeFrameError(
+          node.specifiers[0],
+          'The idx import must be a value import.',
+        );
+      }
+      // `import {default as idx} from ...` or `import idx from ...` are ok.
+      if (!t.isSpecifierDefault(node.specifiers[0])) {
+        throw file.buildCodeFrameError(
+          node.specifiers[0],
+          'The idx import must be a default import.',
+        );
+      }
+    } else if (t.isVariableDeclarator(node)) {
+      // E.g. var {idx} or var [idx]
+      if (!t.isIdentifier(node.id)) {
+        throw file.buildCodeFrameError(
+          node.specifiers[0],
+          'The idx declaration must be an identifier.',
+        );
+      }
+    }
+  }
+
   function makeCondition(node, state, inside) {
     if (inside) {
       return t.ConditionalExpression(
@@ -105,23 +148,72 @@ module.exports = context => {
     }
   }
 
-  const idxVisitor = {
-    CallExpression(path, state) {
-      const node = path.node;
-      if (t.isIdentifier(node.callee) && node.callee.name === 'idx') {
-        checkIdxArguments(state.file, node);
-        const temp = path.scope.generateUidIdentifier('ref');
-        const replacement = makeChain(
-          node.arguments[1].body,
-          {
-            file: state.file,
-            input: node.arguments[0],
-            base: node.arguments[1].params[0],
-            temp,
-          },
+  function visitIdxCallExpression(path, state) {
+    const node = path.node;
+    checkIdxArguments(state.file, node);
+    const temp = path.scope.generateUidIdentifier('ref');
+    const replacement = makeChain(
+      node.arguments[1].body,
+      {
+        file: state.file,
+        input: node.arguments[0],
+        base: node.arguments[1].params[0],
+        temp,
+      },
+    );
+    path.replaceWith(replacement);
+    path.scope.push({id: temp});
+  }
+
+  function isIdxImportOrRequire(node, name) {
+    if (t.isImportDeclaration(node)) {
+      // importKind is not a property unless flow syntax is enabled.
+      return (node.importKind == null || node.importKind === 'value') &&
+             t.isStringLiteral(node.source, {value: name});
+    } else if (t.isVariableDeclarator(node)) {
+      return t.isCallExpression(node.init) &&
+             t.isIdentifier(node.init.callee, {name: 'require'}) &&
+             t.isLiteral(node.init.arguments[0], {value: name});
+    } else {
+      return false;
+    }
+  }
+
+  const declareVisitor = {
+    'ImportDeclaration|VariableDeclarator'(path, state) {
+      if (!isIdxImportOrRequire(path.node, 'idx')) { // TODO: Make this configurable
+        return;
+      }
+
+      checkIdxBindingNode(state.file, path.node);
+
+      const bindingName = t.isImportDeclaration(path.node)
+        ? path.node.specifiers[0].local.name
+        : path.node.id.name;
+      const idxBinding = path.scope.getOwnBinding(bindingName);
+
+      idxBinding.constantViolations.forEach(refPath => {
+        throw state.file.buildCodeFrameError(
+          refPath.node,
+          '`idx` cannot be redefined.'
         );
-        path.replaceWith(replacement);
-        path.scope.push({id: temp});
+      });
+
+      let didTransform = false;
+      let didSkip = false;
+      idxBinding.referencePaths.forEach(refPath => {
+        if (refPath.node === idxBinding.node) {
+          // Do nothing...
+        } else if (refPath.parentPath.isCallExpression()) {
+          visitIdxCallExpression(refPath.parentPath, state);
+          didTransform = true;
+        } else {
+          // Should this throw?
+          didSkip = true;
+        }
+      });
+      if (didTransform && !didSkip) {
+        path.remove();
       }
     },
   };
@@ -135,7 +227,7 @@ module.exports = context => {
           // "babel-plugin-transform-async-to-generator", will convert arrow
           // functions inside async functions into regular functions. So we do
           // our transformation before any one else interferes.
-          path.traverse(idxVisitor, state);
+          path.traverse(declareVisitor, state);
         }
       },
     },
