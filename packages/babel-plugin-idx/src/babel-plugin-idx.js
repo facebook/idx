@@ -181,7 +181,9 @@ module.exports = context => {
 
   const declareVisitor = {
     'ImportDeclaration|VariableDeclarator'(path, state) {
-      if (!isIdxImportOrRequire(path.node, 'idx')) { // TODO: Make this configurable
+      const importName = state.opts.importName || 'idx';
+
+      if (!isIdxImportOrRequire(path.node, importName)) {
         return;
       }
 
@@ -195,7 +197,7 @@ module.exports = context => {
       idxBinding.constantViolations.forEach(refPath => {
         throw state.file.buildCodeFrameError(
           refPath.node,
-          '`idx` cannot be redefined.'
+          '`idx` cannot be redefined.',
         );
       });
 
