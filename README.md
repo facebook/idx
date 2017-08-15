@@ -41,13 +41,43 @@ expressions. Any other expression has undefined behavior.
 
 The `idx` runtime function exists for the purpose of illustrating the expected
 behavior and is not meant to be executed. The `idx` function is used in
-conjunction with a Babel plugin that replaces it with better performing code:
+conjunction with a Babel plugin that replaces it with better performing code.
+
+This babel plugin searches for requires or imports to the `idx` module and
+replaces all its usages, so this code:
 
 ```javascript
-props.user == null ? props.user :
-props.user.friends == null ? props.user.friends :
-props.user.friends[0] == null ? props.user.friends[0] :
-props.user.friends[0].friends
+import idx from 'idx';
+
+function getFriends() {
+  return idx(props, _ => _.user.friends[0].friends)
+};
+```
+
+gets transformed to something like:
+
+```javascript
+function getFriends() {
+  props.user == null ? props.user :
+  props.user.friends == null ? props.user.friends :
+  props.user.friends[0] == null ? props.user.friends[0] :
+  return props.user.friends[0].friends
+}
+```
+
+(note that the original `import` gets also removed).
+
+It's possible to customize the name of the import/require, so code that is not
+directly requiring the `idx` npm package can also get transformed:
+
+```javascript
+{
+  plugins: [
+    ["babel-plugin-idx", {
+      importName: './idx',
+    }]
+  ]
+}
 ```
 
 All this machinery exists due to the fact that an existential operator does not
