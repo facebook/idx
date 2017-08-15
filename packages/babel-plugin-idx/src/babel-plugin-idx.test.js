@@ -17,9 +17,9 @@ const transformAsyncToGenerator = require('babel-plugin-transform-async-to-gener
 const syntaxFlow = require('babel-plugin-syntax-flow');
 const vm = require('vm');
 
-function transform(source, plugins) {
+function transform(source, plugins, options) {
   return babelTransform(source, {
-    plugins: plugins || [babelPluginIdx],
+    plugins: plugins || [[babelPluginIdx, options]],
     babelrc: false,
   }).code;
 }
@@ -61,8 +61,9 @@ describe('babel-plugin-idx', () => {
       toTransformInto: () => ({
         compare(input, expected) {
           const plugins = typeof input === 'string' ? null : input.plugins;
+          const options = typeof input === 'string' ? undefined : input.options;
           const code = typeof input === 'string' ? input : input.code;
-          const actual = transform(code, plugins);
+          const actual = transform(code, plugins, options);
           const pass =
             stringByTrimmingSpaces(actual) ===
             stringByTrimmingSpaces(expected);
@@ -78,8 +79,9 @@ describe('babel-plugin-idx', () => {
         compare(input, expected) {
           try {
             const plugins = typeof input === 'string' ? null : input.plugins;
+            const options = typeof input === 'string' ? undefined : input.options;
             const code = typeof input === 'string' ? input : input.code;
-            const actual = transform(code, plugins);
+            transform(code, plugins, options);
           } catch (error) {
             const actual = error.message.substr(9); // Strip "unknown:".
             return {
@@ -97,7 +99,7 @@ describe('babel-plugin-idx', () => {
       }),
       toReturn: () => ({
         compare(input, expected) {
-          const code = transform(input);
+          const code = transform(input, undefined);
           const actual = vm.runInNewContext(code);
           return {
             pass: actual === expected,
@@ -623,6 +625,49 @@ describe('babel-plugin-idx', () => {
       import idx from 'idx';
     `).toTransformInto(`
       import idx from 'idx';
+    `);
+  });
+
+  it('allows configuration of the import name', () => {
+    expect({
+      code: `
+        import idx from 'myIdx';
+        idx(base, _ => _.b);
+      `,
+      options: {importName: 'myIdx'},
+    }).toTransformInto(`
+      var _ref;
+      (_ref = base) != null ? _ref.b : _ref;
+    `);
+  });
+
+  it('allows configuration of the require name', () => {
+    expect({
+      code: `
+        const idx = require('myIdx');
+        idx(base, _ => _.b);
+      `,
+      options: {importName: 'myIdx'},
+    }).toTransformInto(`
+      var _ref;
+      (_ref = base) != null ? _ref.b : _ref;
+    `);
+  });
+
+  it('allows configuration of the require name', () => {
+    expect({
+      code: `
+        const idx = require('idx');
+        const myIdx = require('myIdx');
+        myIdx(base, _ => _.b);
+        idx(base, _ => _.b);
+      `,
+      options: {importName: 'myIdx'},
+    }).toTransformInto(`
+      var _ref;
+      const idx = require('idx');
+      (_ref = base) != null ? _ref.b : _ref;
+      idx(base, _ => _.b);
     `);
   });
 
