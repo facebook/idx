@@ -224,7 +224,7 @@ module.exports = context => {
     visitor: {
       Program(path, state) {
         // If there can't reasonably be an idx call, exit fast.
-        if (path.scope.getOwnBinding('idx') || idxRe.test(state.file.code)) {
+        if (idxRe.test(state.file.code)) {
           // We're very strict about the shape of idx. Some transforms, like
           // "babel-plugin-transform-async-to-generator", will convert arrow
           // functions inside async functions into regular functions. So we do
