@@ -8,10 +8,10 @@ of maybe-typed properties.
 
 ## Usage
 
-Consider the following type:
+Consider the following type for `props`:
 
 ```javascript
-const props: {
+type User = {
   user: ?{
     name: string,
     friends: ?Array<User>,
@@ -36,6 +36,20 @@ idx(props, _ => _.user.friends[0].friends)
 
 The second argument must be a function that returns one or more nested member
 expressions. Any other expression has undefined behavior.
+
+## Flow Type
+
+[Flow](https://flow.org/) understands the `idx` idiom:
+
+```javascript
+// @flow
+
+import idx from 'idx';
+
+function getName(props: User): ?string {
+  return idx(props, _ => _.user.name);
+}
+```
 
 ## Babel Transform
 

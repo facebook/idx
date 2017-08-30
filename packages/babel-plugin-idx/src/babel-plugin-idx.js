@@ -124,17 +124,7 @@ module.exports = context => {
   }
 
   function makeChain(node, state, inside) {
-    if (t.isCallExpression(node)) {
-      return makeChain(
-        node.callee,
-        state,
-        makeCondition(
-          t.CallExpression(state.temp, node.arguments),
-          state,
-          inside,
-        ),
-      );
-    } else if (t.isMemberExpression(node)) {
+    if (t.isMemberExpression(node)) {
       return makeChain(
         node.object,
         state,
@@ -156,7 +146,7 @@ module.exports = context => {
     } else {
       throw state.file.buildCodeFrameError(
         node,
-        'The `idx` body can only be composed of properties and methods.',
+        'idx callbacks may only access properties on the callback parameter.',
       );
     }
   }
