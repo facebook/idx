@@ -526,7 +526,7 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
- it('handles nested scopes with shadowing', () => {
+  it('handles nested scopes with shadowing', () => {
     expect(`
       const idx = require('idx');
       idx(base, _ => _.b);
@@ -549,17 +549,28 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
-  it('ignores type imports', () => {
+  it('throws on type imports', () => {
     expect({
       plugins: [babelPluginIdx, syntaxFlow],
       code: `
         import type idx from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toTransformInto(`
-      import type idx from 'idx';
-      idx(base, _ => _.b);
-    `);
+    }).toThrowTransformError(
+      'The idx import must be a value import.',
+    );
+  });
+
+  it('throws on typeof imports', () => {
+    expect({
+      plugins: [babelPluginIdx, syntaxFlow],
+      code: `
+        import typeof idx from 'idx';
+        idx(base, _ => _.b);
+      `,
+    }).toThrowTransformError(
+      'The idx import must be a value import.',
+    );
   });
 
   it('throws on type import specifier', () => {
@@ -570,16 +581,53 @@ describe('babel-plugin-idx', () => {
         idx(base, _ => _.b);
       `,
     }).toThrowTransformError(
-      'The idx import must be a value import.'
+      'The idx import must be a default import.',
     );
   });
+
+  it('throws on typeof import specifier', () => {
+    expect({
+      plugins: [babelPluginIdx, syntaxFlow],
+      code: `
+        import {typeof idx} from 'idx';
+        idx(base, _ => _.b);
+      `,
+    }).toThrowTransformError(
+      'The idx import must be a default import.',
+    );
+  });
+
+  it('throws on type default import specifier', () => {
+    expect({
+      plugins: [babelPluginIdx, syntaxFlow],
+      code: `
+        import {type default as idx} from 'idx';
+        idx(base, _ => _.b);
+      `,
+    }).toThrowTransformError(
+      'The idx import must be a value import.',
+    );
+  });
+
+  it('throws on typeof default import specifier', () => {
+    expect({
+      plugins: [babelPluginIdx, syntaxFlow],
+      code: `
+        import {typeof default as idx} from 'idx';
+        idx(base, _ => _.b);
+      `,
+    }).toThrowTransformError(
+      'The idx import must be a value import.',
+    );
+  });
+
 
   it('throws on named idx import', () => {
     expect(`
       import {idx} from 'idx';
       idx(base, _ => _.b);
     `).toThrowTransformError(
-      'The idx import must be a default import.'
+      'The idx import must be a default import.',
     );
   });
 
@@ -588,7 +636,7 @@ describe('babel-plugin-idx', () => {
       import * as idx from 'idx';
       idx(base, _ => _.b);
     `).toThrowTransformError(
-      'The idx import must be a default import.'
+      'The idx import must be a default import.',
     );
   });
 
@@ -597,7 +645,7 @@ describe('babel-plugin-idx', () => {
       import idx, {foo} from 'idx';
       idx(base, _ => _.b);
     `).toThrowTransformError(
-      'The idx import must be a single specifier.'
+      'The idx import must be a single specifier.',
     );
   });
 
@@ -606,7 +654,16 @@ describe('babel-plugin-idx', () => {
       import idx, * as foo from 'idx';
       idx(base, _ => _.b);
     `).toThrowTransformError(
-      'The idx import must be a single specifier.'
+      'The idx import must be a single specifier.',
+    );
+  });
+
+  it('throws on named default plus other import', () => {
+    expect(`
+      import {default as idx, foo} from 'idx';
+      idx(base, _ => _.b);
+    `).toThrowTransformError(
+      'The idx import must be a single specifier.',
     );
   });
 
@@ -641,6 +698,23 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('follows configuration of the import name', () => {
+    expect({
+      code: `
+        import idx from 'idx';
+        import myIdx from 'myIdx';
+        myIdx(base, _ => _.b);
+        idx(base, _ => _.c);
+      `,
+      options: {importName: 'myIdx'},
+    }).toTransformInto(`
+      var _ref;
+      import idx from 'idx';
+      (_ref = base) != null ? _ref.b : _ref;
+      idx(base, _ => _.c);
+    `);
+  });
+
   it('allows configuration of the require name', () => {
     expect({
       code: `
@@ -654,20 +728,20 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
-  it('allows configuration of the require name', () => {
+  it('follows configuration of the require name', () => {
     expect({
       code: `
         const idx = require('idx');
         const myIdx = require('myIdx');
         myIdx(base, _ => _.b);
-        idx(base, _ => _.b);
+        idx(base, _ => _.c);
       `,
       options: {importName: 'myIdx'},
     }).toTransformInto(`
       var _ref;
       const idx = require('idx');
       (_ref = base) != null ? _ref.b : _ref;
-      idx(base, _ => _.b);
+      idx(base, _ => _.c);
     `);
   });
 

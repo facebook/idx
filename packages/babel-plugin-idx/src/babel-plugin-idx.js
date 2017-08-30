@@ -53,34 +53,47 @@ module.exports = context => {
 
   function checkIdxBindingNode(file, node) {
     if (t.isImportDeclaration(node)) {
+      // E.g. `import '...'`
       if (node.specifiers.length === 0) {
         throw file.buildCodeFrameError(
           node,
           'The idx import must have a value.',
         );
       }
+      // E.g. `import A, {B} from '...'`
+      //      `import A, * as B from '...'`
+      //      `import {A, B} from '...'`
       if (node.specifiers.length > 1) {
         throw file.buildCodeFrameError(
           node.specifiers[1],
           'The idx import must be a single specifier.',
         );
       }
-      // importKind is not "value" when it's not a type :/
-      // E.g. `import {type idx} from ...`
-      // Not to be confused with:
-      //    `import type idx from ...` or
-      //    `import type {idx} from ...`
-      if (node.specifiers[0].importKind != null) {
-        throw file.buildCodeFrameError(
-          node.specifiers[0],
-          'The idx import must be a value import.',
-        );
-      }
-      // `import {default as idx} from ...` or `import idx from ...` are ok.
+      // `import {default as idx} from '...'` or `import idx from '...'` are ok.
+      // `import idx, * as idx2 from '...'` is not ok but would've been caught
+      // above.
       if (!t.isSpecifierDefault(node.specifiers[0])) {
         throw file.buildCodeFrameError(
           node.specifiers[0],
           'The idx import must be a default import.',
+        );
+      }
+      // `importKind` is not a property unless flow syntax is enabled.
+      // On specifiers, `importKind` is not "value" when it's not a type, it's
+      // `null`.
+      // E.g. `import type {...} from '...'`
+      //      `import typeof {...} from '...'`
+      //      `import {type ...} from '...'`.
+      //      `import {typeof ...} from '...'`
+      if (
+        node.importKind === 'type' ||
+        node.importKind === 'typeof' ||
+        node.specifiers[0].importKind === 'type' ||
+        node.specifiers[0].importKind === 'typeof'
+      ) {
+        throw file.buildCodeFrameError(
+          node,
+          'The idx import must be a value import.',
         );
       }
     } else if (t.isVariableDeclarator(node)) {
@@ -167,9 +180,7 @@ module.exports = context => {
 
   function isIdxImportOrRequire(node, name) {
     if (t.isImportDeclaration(node)) {
-      // importKind is not a property unless flow syntax is enabled.
-      return (node.importKind == null || node.importKind === 'value') &&
-             t.isStringLiteral(node.source, {value: name});
+      return t.isStringLiteral(node.source, {value: name});
     } else if (t.isVariableDeclarator(node)) {
       return t.isCallExpression(node.init) &&
              t.isIdentifier(node.init.callee, {name: 'require'}) &&
