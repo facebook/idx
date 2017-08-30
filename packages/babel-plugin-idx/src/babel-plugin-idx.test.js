@@ -378,6 +378,34 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('transforms idx calls in async methods', () => {
+    expect({
+      plugins: [transformAsyncToGenerator, babelPluginIdx],
+      code: `
+        const idx = require('idx');
+        class Foo {
+          async bar() {
+            idx(base, _ => _.b);
+            return this;
+          }
+        }
+      `,
+    }).toTransformInto(`
+      ${asyncToGeneratorHelperCode}
+
+      class Foo {
+        bar() {
+          var _this = this;
+          return _asyncToGenerator(function* () {
+            var _ref;
+            (_ref = base) != null ? _ref.b : _ref;
+            return _this;
+          })();
+        }
+      }
+    `);
+  });
+
   it('transforms idx calls when an idx import binding is in scope', () => {
     expect(`
       import idx from 'idx';
