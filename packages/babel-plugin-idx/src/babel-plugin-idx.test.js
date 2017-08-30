@@ -128,26 +128,13 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
-  it('transforms call expressions', () => {
+  it('throws on call expressions', () => {
     expect(`
       const idx = require('idx');
       idx(base, _ => _.b.c(...foo)().d(bar, null, [...baz]));
-    `).toTransformInto(`
-      var _ref;
-      (_ref = base) != null ?
-        (_ref = _ref.b) != null ?
-          (_ref = _ref.c) != null ?
-            (_ref = _ref(...foo)) != null ?
-              (_ref = _ref()) != null ?
-                (_ref = _ref.d) != null ?
-                  _ref(bar, null, [...baz]) :
-                _ref :
-              _ref :
-            _ref :
-          _ref :
-        _ref :
-      _ref;
-    `);
+    `).toThrowTransformError(
+      'idx callbacks may only access properties on the callback parameter.',
+    );
   });
 
   it('transforms bracket notation', () => {
@@ -166,26 +153,13 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
-  it('transforms bracket notation call expressions', () => {
+  it('throws on bracket notation call expressions', () => {
     expect(`
       const idx = require('idx');
       idx(base, _ => _["b"](...foo)()[0][c + d](bar, null, [...baz]));
-    `).toTransformInto(`
-      var _ref;
-      (_ref = base) != null ?
-        (_ref = _ref["b"]) != null ?
-          (_ref = _ref(...foo)) != null ?
-            (_ref = _ref()) != null ?
-              (_ref = _ref[0]) != null ?
-                (_ref = _ref[c + d]) != null ?
-                  _ref(bar, null, [...baz]) :
-                _ref :
-              _ref :
-            _ref :
-          _ref :
-        _ref :
-      _ref;
-    `);
+    `).toThrowTransformError(
+      'idx callbacks may only access properties on the callback parameter.',
+    );
   });
 
   it('transforms combination of both member access notations', () => {
@@ -244,7 +218,7 @@ describe('babel-plugin-idx', () => {
       const idx = require('idx');
       idx(base, _ => (_.a++).b.c);
     `).toThrowTransformError(
-      'The `idx` body can only be composed of properties and methods.',
+      'idx callbacks may only access properties on the callback parameter.',
     );
   });
 
@@ -454,20 +428,13 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
-  it('transforms base call expressions', () => {
+  it('throws on base call expressions', () => {
     expect(`
       const idx = require('idx');
       idx(base, _ => _().b.c);
-    `).toTransformInto(`
-      var _ref;
-      (_ref = base) != null ?
-        (_ref = _ref()) != null ?
-          (_ref = _ref.b) != null ?
-            _ref.c :
-          _ref :
-        _ref :
-      _ref;
-    `);
+    `).toThrowTransformError(
+      'idx callbacks may only access properties on the callback parameter.',
+    );
   });
 
   it('transforms when the idx parent is a scope creating expression', () => {
@@ -779,30 +746,6 @@ describe('babel-plugin-idx', () => {
         const idx = require('idx');
         const base = {a: {b: {c: 2}}};
         idx(base, _ => _.a.b.c);
-      `).toReturn(2);
-    });
-
-    it('works with a method in the start', () => {
-      expect(`
-        const idx = require('idx');
-        const base = {a: {b: {c: () => 2}}};
-        idx(base, _ => _.a.b.c());
-      `).toReturn(2);
-    });
-
-    it('works with a method in the end', () => {
-      expect(`
-        const idx = require('idx');
-        const base = () => ({a: {b: {c: 2}}});
-        idx(base, _ => _().a.b.c);
-      `).toReturn(2);
-    });
-
-    it('works with a method in the middle', () => {
-      expect(`
-        const idx = require('idx');
-        const base = {a: () => ({b: {c: 2}})};
-        idx(base, _ => _.a().b.c);
       `).toReturn(2);
     });
 
