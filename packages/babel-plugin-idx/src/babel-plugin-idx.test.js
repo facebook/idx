@@ -688,10 +688,10 @@ describe('babel-plugin-idx', () => {
   it('allows configuration of the import name', () => {
     expect({
       code: `
-        import idx from 'myIdx';
-        idx(base, _ => _.b);
+        import i_d_x from 'i_d_x';
+        i_d_x(base, _ => _.b);
       `,
-      options: {importName: 'myIdx'},
+      options: {importName: 'i_d_x'},
     }).toTransformInto(`
       var _ref;
       (_ref = base) != null ? _ref.b : _ref;
@@ -702,11 +702,11 @@ describe('babel-plugin-idx', () => {
     expect({
       code: `
         import idx from 'idx';
-        import myIdx from 'myIdx';
-        myIdx(base, _ => _.b);
+        import i_d_x from 'i_d_x';
+        i_d_x(base, _ => _.b);
         idx(base, _ => _.c);
       `,
-      options: {importName: 'myIdx'},
+      options: {importName: 'i_d_x'},
     }).toTransformInto(`
       var _ref;
       import idx from 'idx';
@@ -718,10 +718,10 @@ describe('babel-plugin-idx', () => {
   it('allows configuration of the require name', () => {
     expect({
       code: `
-        const idx = require('myIdx');
-        idx(base, _ => _.b);
+        const i_d_x = require('i_d_x');
+        i_d_x(base, _ => _.b);
       `,
-      options: {importName: 'myIdx'},
+      options: {importName: 'i_d_x'},
     }).toTransformInto(`
       var _ref;
       (_ref = base) != null ? _ref.b : _ref;
@@ -732,11 +732,11 @@ describe('babel-plugin-idx', () => {
     expect({
       code: `
         const idx = require('idx');
-        const myIdx = require('myIdx');
-        myIdx(base, _ => _.b);
+        const i_d_x = require('i_d_x');
+        i_d_x(base, _ => _.b);
         idx(base, _ => _.c);
       `,
-      options: {importName: 'myIdx'},
+      options: {importName: 'i_d_x'},
     }).toTransformInto(`
       var _ref;
       const idx = require('idx');

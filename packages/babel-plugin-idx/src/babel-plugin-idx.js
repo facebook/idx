@@ -192,9 +192,7 @@ module.exports = context => {
 
   const declareVisitor = {
     'ImportDeclaration|VariableDeclarator'(path, state) {
-      const importName = state.opts.importName || 'idx';
-
-      if (!isIdxImportOrRequire(path.node, importName)) {
+      if (!isIdxImportOrRequire(path.node, state.importName)) {
         return;
       }
 
@@ -234,13 +232,15 @@ module.exports = context => {
   return {
     visitor: {
       Program(path, state) {
+        const importName = state.opts.importName || 'idx';
         // If there can't reasonably be an idx call, exit fast.
-        if (idxRe.test(state.file.code)) {
+        if (importName !== 'idx' || idxRe.test(state.file.code)) {
           // We're very strict about the shape of idx. Some transforms, like
           // "babel-plugin-transform-async-to-generator", will convert arrow
           // functions inside async functions into regular functions. So we do
           // our transformation before any one else interferes.
-          path.traverse(declareVisitor, state);
+          const newState = {file: state.file, importName};
+          path.traverse(declareVisitor, newState);
         }
       },
     },
