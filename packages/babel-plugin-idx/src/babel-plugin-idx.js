@@ -175,7 +175,12 @@ module.exports = context => {
       },
     );
     path.replaceWith(replacement);
-    path.scope.push({id: temp});
+    // Hoist to the top if it's an async method.
+    if (path.scope.path.isClassMethod({async: true})) {
+      path.scope.push({id: temp, _blockHoist: 3});
+    } else {
+      path.scope.push({id: temp});
+    }
   }
 
   function isIdxImportOrRequire(node, name) {
