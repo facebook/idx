@@ -105,4 +105,5 @@ const getInvalidPropertyAccessErrorPattern: any = new Function('$object$', `
   throw new Error('Expected property access on ' + $object$ + ' to throw.');
 `);
 
+idx.default = idx;
 module.exports = idx;
