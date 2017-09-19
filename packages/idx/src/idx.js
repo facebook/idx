@@ -103,4 +103,5 @@ function getInvalidPropertyAccessErrorPattern(obj: string): RegExp {
   return new RegExp('^' + obj + ' | ' + obj + '$|^[^\\(]* ' + obj + ' ');
 }
 
+idx.default = idx;
 module.exports = idx;
