@@ -74,7 +74,7 @@ function idx<Ti, Tv>(input: Ti, accessor: (input: Ti) => Tv): ?Tv {
 let nullPattern: ?RegExp;
 function isNullPropertyAccessError({message}: TypeError): boolean {
   if (!nullPattern) {
-    nullPattern = getInvalidPropertyAccessErrorPattern(null);
+    nullPattern = getInvalidPropertyAccessErrorPattern('null');
   }
   return nullPattern.test(message);
 }
@@ -82,27 +82,25 @@ function isNullPropertyAccessError({message}: TypeError): boolean {
 let undefinedPattern: ?RegExp;
 function isUndefinedPropertyAccessError({message}: TypeError): boolean {
   if (!undefinedPattern) {
-    undefinedPattern = getInvalidPropertyAccessErrorPattern(undefined);
+    undefinedPattern = getInvalidPropertyAccessErrorPattern('undefined');
   }
   return undefinedPattern.test(message);
 }
 
-/**
- * Use `new Function(...)` to avoid minifying "$object$" and "$property$".
- */
-// eslint-disable-next-line no-new-func, flowtype/no-weak-types
-const getInvalidPropertyAccessErrorPattern: any = new Function('$object$', `
-  try {
-    $object$.$property$;
-  } catch (error) {
-    return new RegExp(
-      error.message
-        .replace(/[-\\[\\]\\/\\{\\}\\(\\)\\*\\+\\?\\.\\\\\\^\\$\\|]/g, '\\\\$&')
-        .replace('\\\\$object\\\\$', '.+')
-        .replace('\\\\$property\\\\$', '.+')
-    );
-  }
-  throw new Error('Expected property access on ' + $object$ + ' to throw.');
-`);
+function getInvalidPropertyAccessErrorPattern(obj: string): RegExp {
+  /**
+   * Match obj at start, end, or internally before first '('.
+   *
+   * Some actual error messages for null:
+   *
+   * TypeError: Cannot read property 'bar' of null
+   * TypeError: Cannot convert null value to object
+   * TypeError: foo is null
+   * TypeError: null has no properties
+   * TypeError: null is not an object (evaluating 'foo.bar')
+   * TypeError: null is not an object (evaluating '(" undefined ", null).bar')
+   */
+  return new RegExp('^' + obj + ' | ' + obj + '$|^[^\\(]* ' + obj + ' ');
+}
 
 module.exports = idx;
