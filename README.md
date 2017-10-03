@@ -6,6 +6,9 @@ If an intermediate property is either null or undefined, it is instead returned.
 The purpose of this function is to simplify extracting properties from a chain
 of maybe-typed properties.
 
+This module exists as a stop-gap solution because JavaScript does not currently
+support [optional chaining](https://github.com/tc39/proposal-optional-chaining).
+
 ## Usage
 
 Consider the following type for `props`:
@@ -93,9 +96,6 @@ directly requiring the `idx` npm package can also get transformed:
   ]
 }
 ```
-
-All this machinery exists due to the fact that an existential operator does not
-currently exist in JavaScript.
 
 ## License
 
