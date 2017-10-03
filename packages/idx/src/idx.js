@@ -61,9 +61,9 @@ function idx<Ti, Tv>(input: Ti, accessor: (input: Ti) => Tv): ?Tv {
     return accessor(input);
   } catch (error) {
     if (error instanceof TypeError) {
-      if (isNullPropertyAccessError(error)) {
+      if (nullPattern.test(error)) {
         return null;
-      } else if (isUndefinedPropertyAccessError(error)) {
+      } else if (undefinedPattern.test(error)) {
         return undefined;
       }
     }
@@ -71,37 +71,18 @@ function idx<Ti, Tv>(input: Ti, accessor: (input: Ti) => Tv): ?Tv {
   }
 }
 
-let nullPattern: ?RegExp;
-function isNullPropertyAccessError({message}: TypeError): boolean {
-  if (!nullPattern) {
-    nullPattern = getInvalidPropertyAccessErrorPattern('null');
-  }
-  return nullPattern.test(message);
-}
-
-let undefinedPattern: ?RegExp;
-function isUndefinedPropertyAccessError({message}: TypeError): boolean {
-  if (!undefinedPattern) {
-    undefinedPattern = getInvalidPropertyAccessErrorPattern('undefined');
-  }
-  return undefinedPattern.test(message);
-}
-
-function getInvalidPropertyAccessErrorPattern(obj: string): RegExp {
-  /**
-   * Match obj at start, end, or internally before first '('.
-   *
-   * Some actual error messages for null:
-   *
-   * TypeError: Cannot read property 'bar' of null
-   * TypeError: Cannot convert null value to object
-   * TypeError: foo is null
-   * TypeError: null has no properties
-   * TypeError: null is not an object (evaluating 'foo.bar')
-   * TypeError: null is not an object (evaluating '(" undefined ", null).bar')
-   */
-  return new RegExp('^' + obj + ' | ' + obj + '$|^[^\\(]* ' + obj + ' ');
-}
+/**
+ * Some actual error messages for null:
+ *
+ * TypeError: Cannot read property 'bar' of null
+ * TypeError: Cannot convert null value to object
+ * TypeError: foo is null
+ * TypeError: null has no properties
+ * TypeError: null is not an object (evaluating 'foo.bar')
+ * TypeError: null is not an object (evaluating '(" undefined ", null).bar')
+ */
+const nullPattern = /^null | null$|^[^\(]* null /;
+const undefinedPattern = /^undefined | undefined$|^[^\(]* undefined /;
 
 idx.default = idx;
 module.exports = idx;
