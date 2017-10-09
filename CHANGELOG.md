@@ -1,3 +1,9 @@
+2.1.0 / 2017-10-09
+==================
+
+  * Simplify `idx` error message parsing and remove `Function` constructor use.
+  * Export `idx` as `default` for use with `import`.
+
 2.0.0 / 2017-08-31
 ==================
 
