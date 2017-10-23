@@ -99,5 +99,4 @@ directly requiring the `idx` npm package can also get transformed:
 
 ## License
 
-`idx` is [BSD licensed](./LICENSE). We also provide an additional
-[patent grant](./PATENTS).
+`idx` is [BSD licensed](./LICENSE).
