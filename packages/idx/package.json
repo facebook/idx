@@ -9,7 +9,7 @@
     "lib/"
   ],
   "repository": "facebookincubator/idx",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "scripts": {
     "build": "scripts/build.sh",
     "prepublish": "yarn run build && cp ../../README.md .",
