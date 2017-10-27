@@ -1,3 +1,9 @@
+2.2.0 / 2017-10-27
+==================
+
+  * Added TypeScript definitions for `idx`.
+  * Relicensed `babel-plugin-idx` and `idx` as MIT.
+
 2.1.0 / 2017-10-09
 ==================
 
