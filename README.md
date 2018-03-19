@@ -9,6 +9,12 @@ of maybe-typed properties.
 This module exists as a stop-gap solution because JavaScript does not currently
 support [optional chaining](https://github.com/tc39/proposal-optional-chaining).
 
+## Install
+
+```shell
+$ npm install idx
+```
+
 ## Usage
 
 Consider the following type for `props`:
