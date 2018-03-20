@@ -15,6 +15,12 @@ support [optional chaining](https://github.com/tc39/proposal-optional-chaining).
 $ npm install idx
 ```
 
+or
+
+```shell
+$ yarn add idx
+```
+
 ## Usage
 
 Consider the following type for `props`:
