@@ -49,4 +49,26 @@ describe('idx', () => {
     const a = {b: []};
     expect(idx(a, _ => _.b[0].c)).toEqual(undefined);
   });
+  
+  it('returns null for error in capital case', () => {
+    const error = new TypeError('b is NULL');
+    const a = {};
+    Object.defineProperty(a, 'b', {
+      get() {
+        throw error;
+      },
+    });
+    expect(idx(a, _ => _.b.c)).toEqual(null);
+  });
+  
+  it('returns undefined for error in capital case', () => {
+    const error = new TypeError('b is UNDEFINED');
+    const a = {};
+    Object.defineProperty(a, 'b', {
+      get() {
+        throw error;
+      },
+    });
+    expect(idx(a, _ => _.b.c)).toEqual(undefined);
+  });
 });

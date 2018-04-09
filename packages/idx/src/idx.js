@@ -79,8 +79,8 @@ function idx<Ti, Tv>(input: Ti, accessor: (input: Ti) => Tv): ?Tv {
  * TypeError: null is not an object (evaluating 'foo.bar')
  * TypeError: null is not an object (evaluating '(" undefined ", null).bar')
  */
-const nullPattern = /^null | null$|^[^(]* null /;
-const undefinedPattern = /^undefined | undefined$|^[^(]* undefined /;
+const nullPattern = /^null | null$|^[^(]* null /i;
+const undefinedPattern = /^undefined | undefined$|^[^(]* undefined /i;
 
 idx.default = idx;
 module.exports = idx;
