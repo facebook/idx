@@ -1,3 +1,8 @@
+2.3.0 / 2018-04-13
+==================
+
+  * Fix detection in browsers with capitalized `NULL` or `UNDEFINED`.
+
 2.2.0 / 2017-10-27
 ==================
 
