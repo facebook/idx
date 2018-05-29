@@ -20,6 +20,7 @@
     "babel-jest": "^19.0.0",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-env": "^1.1.11",
+    "flow-bin": "^0.73.0",
     "jest": "^19.0.2"
   },
   "jest": {
