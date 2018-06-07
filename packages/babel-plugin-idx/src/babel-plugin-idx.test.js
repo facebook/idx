@@ -284,6 +284,23 @@ describe('babel-plugin-idx', () => {
     `);
   });
 
+  it('transforms nested idx calls', () => {
+    expect(`
+      const idx = require('idx');
+      idx(
+        idx(
+          idx(base, _ => _.a.b),
+          _ => _.c.d
+        ),
+        _ => _.e.f
+      );
+    `).toTransformInto(`
+      var _ref, _ref2, _ref3;
+
+      (_ref3 = (_ref2 = (_ref = base) != null ? (_ref = _ref.a) != null ? _ref.b : _ref : _ref) != null ? (_ref2 = _ref2.c) != null ? _ref2.d : _ref2 : _ref2) != null ? (_ref3 = _ref3.e) != null ? _ref3.f : _ref3 : _ref3;
+    `);
+  });
+
   it('transforms idx calls inside async functions (plugin order #1)', () => {
     expect({
       plugins: [babelPluginIdx, transformAsyncToGenerator],
@@ -530,11 +547,11 @@ describe('babel-plugin-idx', () => {
         }
       }
     `).toTransformInto(`
-      var _ref;
-      (_ref = base) != null ? _ref.b : _ref;
+      var _ref2;
+      (_ref2 = base) != null ? _ref2.b : _ref2;
       function aaa() {
-        var _ref2;
-        (_ref2 = base) != null ? _ref2.b : _ref2;
+        var _ref;
+        (_ref = base) != null ? _ref.b : _ref;
         function bbb(idx) {
           idx(base, _ => _.b);
         }
@@ -760,6 +777,34 @@ describe('babel-plugin-idx', () => {
         const idx = require('idx');
         const base = {a: {b: null}};
         idx(base, _ => _.a.b.c);
+      `).toReturn(null);
+    });
+
+    it('works with nested idx calls', () => {
+      expect(`
+        const idx = require('idx');
+        const base = {a: {b: {c: {d: {e: {f: 2}}}}}};
+        idx(
+          idx(
+            idx(base, _ => _.a.b),
+            _ => _.c.d
+          ),
+          _ => _.e.f
+        );
+      `).toReturn(2);
+    });
+
+    it('works with nested idx calls with missing properties', () => {
+      expect(`
+        const idx = require('idx');
+        const base = {a: {b: {c: null}}};
+        idx(
+          idx(
+            idx(base, _ => _.a.b),
+            _ => _.c.d
+          ),
+          _ => _.e.f
+        );
       `).toReturn(null);
     });
   });
