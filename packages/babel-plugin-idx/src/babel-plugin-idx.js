@@ -205,7 +205,10 @@ module.exports = context => {
 
       let didTransform = false;
       let didSkip = false;
-      idxBinding.referencePaths.forEach(refPath => {
+
+      // Traverse the references backwards to process inner calls before
+      // outer calls.
+      idxBinding.referencePaths.slice().reverse().forEach(refPath => {
         if (refPath.node === idxBinding.node) {
           // Do nothing...
         } else if (refPath.parentPath.isCallExpression()) {
