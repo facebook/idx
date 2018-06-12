@@ -6,6 +6,7 @@
  *
  * @providesModule idx
  * @flow strict
+ * @format
  */
 
 'use strict'; // eslint-disable-line strict

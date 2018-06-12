@@ -3,6 +3,8 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
+ * @format
  */
 
 'use strict'; // eslint-disable-line strict
@@ -31,7 +33,7 @@ module.exports = context => {
       throw file.buildCodeFrameError(
         arrowFunction.body,
         'The body of the arrow function supplied to `idx` must be a single ' +
-        'expression (without curly braces).',
+          'expression (without curly braces).',
       );
     }
     if (arrowFunction.params.length !== 1) {
@@ -137,7 +139,7 @@ module.exports = context => {
         throw state.file.buildCodeFrameError(
           node,
           'The parameter of the arrow function supplied to `idx` must match ' +
-          'the base of the body expression.',
+            'the base of the body expression.',
         );
       }
       return makeCondition(state.input, state, inside);
@@ -153,15 +155,12 @@ module.exports = context => {
     const node = path.node;
     checkIdxArguments(state.file, node);
     const temp = path.scope.generateUidIdentifier('ref');
-    const replacement = makeChain(
-      node.arguments[1].body,
-      {
-        file: state.file,
-        input: node.arguments[0],
-        base: node.arguments[1].params[0],
-        temp,
-      },
-    );
+    const replacement = makeChain(node.arguments[1].body, {
+      file: state.file,
+      input: node.arguments[0],
+      base: node.arguments[1].params[0],
+      temp,
+    });
     path.replaceWith(replacement);
     // Hoist to the top if it's an async method.
     if (path.scope.path.isClassMethod({async: true})) {
@@ -175,9 +174,11 @@ module.exports = context => {
     if (t.isImportDeclaration(node)) {
       return t.isStringLiteral(node.source, {value: name});
     } else if (t.isVariableDeclarator(node)) {
-      return t.isCallExpression(node.init) &&
-             t.isIdentifier(node.init.callee, {name: 'require'}) &&
-             t.isLiteral(node.init.arguments[0], {value: name});
+      return (
+        t.isCallExpression(node.init) &&
+        t.isIdentifier(node.init.callee, {name: 'require'}) &&
+        t.isLiteral(node.init.arguments[0], {value: name})
+      );
     } else {
       return false;
     }
@@ -208,17 +209,20 @@ module.exports = context => {
 
       // Traverse the references backwards to process inner calls before
       // outer calls.
-      idxBinding.referencePaths.slice().reverse().forEach(refPath => {
-        if (refPath.node === idxBinding.node) {
-          // Do nothing...
-        } else if (refPath.parentPath.isCallExpression()) {
-          visitIdxCallExpression(refPath.parentPath, state);
-          didTransform = true;
-        } else {
-          // Should this throw?
-          didSkip = true;
-        }
-      });
+      idxBinding.referencePaths
+        .slice()
+        .reverse()
+        .forEach(refPath => {
+          if (refPath.node === idxBinding.node) {
+            // Do nothing...
+          } else if (refPath.parentPath.isCallExpression()) {
+            visitIdxCallExpression(refPath.parentPath, state);
+            didTransform = true;
+          } else {
+            // Should this throw?
+            didSkip = true;
+          }
+        });
       if (didTransform && !didSkip) {
         path.remove();
       }

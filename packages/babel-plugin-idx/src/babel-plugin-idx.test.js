@@ -3,6 +3,8 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
+ *
+ * @format
  */
 
 'use strict'; // eslint-disable-line strict
@@ -63,13 +65,15 @@ describe('babel-plugin-idx', () => {
           const code = typeof input === 'string' ? input : input.code;
           const actual = transform(code, plugins, options);
           const pass =
-            stringByTrimmingSpaces(actual) ===
-            stringByTrimmingSpaces(expected);
+            stringByTrimmingSpaces(actual) === stringByTrimmingSpaces(expected);
           return {
             pass,
             message:
-              'Expected input to transform into:\n' + expected + '\n' +
-              'Instead, got:\n' + actual,
+              'Expected input to transform into:\n' +
+              expected +
+              '\n' +
+              'Instead, got:\n' +
+              actual,
           };
         },
       }),
@@ -77,7 +81,8 @@ describe('babel-plugin-idx', () => {
         compare(input, expected) {
           try {
             const plugins = typeof input === 'string' ? null : input.plugins;
-            const options = typeof input === 'string' ? undefined : input.options;
+            const options =
+              typeof input === 'string' ? undefined : input.options;
             const code = typeof input === 'string' ? input : input.code;
             transform(code, plugins, options);
           } catch (error) {
@@ -85,8 +90,12 @@ describe('babel-plugin-idx', () => {
             return {
               pass: actual === expected,
               message:
-                'Expected transform to throw "' + expected + '", but instead ' +
-                'got "' + actual + '".',
+                'Expected transform to throw "' +
+                expected +
+                '", but instead ' +
+                'got "' +
+                actual +
+                '".',
             };
           }
           return {
@@ -207,7 +216,7 @@ describe('babel-plugin-idx', () => {
       idx(base, a => b.property)
     `).toThrowTransformError(
       'The parameter of the arrow function supplied to `idx` must match the ' +
-      'base of the body expression.',
+        'base of the body expression.',
     );
   });
 
@@ -226,7 +235,7 @@ describe('babel-plugin-idx', () => {
       idx(base, _ => {})
     `).toThrowTransformError(
       'The body of the arrow function supplied to `idx` must be a single ' +
-      'expression (without curly braces).',
+        'expression (without curly braces).',
     );
   });
 
@@ -244,27 +253,21 @@ describe('babel-plugin-idx', () => {
     expect(`
       const idx = require('idx');
       idx();
-    `).toThrowTransformError(
-      'The `idx` function takes exactly two arguments.',
-    );
+    `).toThrowTransformError('The `idx` function takes exactly two arguments.');
   });
 
   it('throws if idx is called with one argument', () => {
     expect(`
       const idx = require('idx');
       idx(1);
-    `).toThrowTransformError(
-      'The `idx` function takes exactly two arguments.',
-    );
+    `).toThrowTransformError('The `idx` function takes exactly two arguments.');
   });
 
   it('throws if idx is called with three arguments', () => {
     expect(`
       const idx = require('idx');
       idx(1, 2, 3);
-    `).toThrowTransformError(
-      'The `idx` function takes exactly two arguments.',
-    );
+    `).toThrowTransformError('The `idx` function takes exactly two arguments.');
   });
 
   it('transforms idx calls as part of another expressions', () => {
@@ -469,9 +472,7 @@ describe('babel-plugin-idx', () => {
       let idx = require('idx');
       idx = null;
       idx(base, _ => _.b);
-    `).toThrowTransformError(
-      '`idx` cannot be redefined.',
-    );
+    `).toThrowTransformError('`idx` cannot be redefined.');
   });
 
   it('throws if redefined after use', () => {
@@ -479,9 +480,7 @@ describe('babel-plugin-idx', () => {
       let idx = require('idx');
       idx(base, _ => _.b);
       idx = null;
-    `).toThrowTransformError(
-      '`idx` cannot be redefined.',
-    );
+    `).toThrowTransformError('`idx` cannot be redefined.');
   });
 
   it('throws if there is a scope conflict', () => {
@@ -489,9 +488,7 @@ describe('babel-plugin-idx', () => {
       let idx = require('idx');
       idx(base, _ => _.b);
       function idx() {}
-    `).toThrowTransformError(
-      '`idx` cannot be redefined.',
-    );
+    `).toThrowTransformError('`idx` cannot be redefined.');
   });
 
   it('handles sibling scopes with unique idx', () => {
@@ -566,9 +563,7 @@ describe('babel-plugin-idx', () => {
         import type idx from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toThrowTransformError(
-      'The idx import must be a value import.',
-    );
+    }).toThrowTransformError('The idx import must be a value import.');
   });
 
   it('throws on typeof imports', () => {
@@ -578,9 +573,7 @@ describe('babel-plugin-idx', () => {
         import typeof idx from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toThrowTransformError(
-      'The idx import must be a value import.',
-    );
+    }).toThrowTransformError('The idx import must be a value import.');
   });
 
   it('throws on type import specifier', () => {
@@ -590,9 +583,7 @@ describe('babel-plugin-idx', () => {
         import {type idx} from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toThrowTransformError(
-      'The idx import must be a default import.',
-    );
+    }).toThrowTransformError('The idx import must be a default import.');
   });
 
   it('throws on typeof import specifier', () => {
@@ -602,9 +593,7 @@ describe('babel-plugin-idx', () => {
         import {typeof idx} from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toThrowTransformError(
-      'The idx import must be a default import.',
-    );
+    }).toThrowTransformError('The idx import must be a default import.');
   });
 
   it('throws on type default import specifier', () => {
@@ -614,9 +603,7 @@ describe('babel-plugin-idx', () => {
         import {type default as idx} from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toThrowTransformError(
-      'The idx import must be a value import.',
-    );
+    }).toThrowTransformError('The idx import must be a value import.');
   });
 
   it('throws on typeof default import specifier', () => {
@@ -626,55 +613,42 @@ describe('babel-plugin-idx', () => {
         import {typeof default as idx} from 'idx';
         idx(base, _ => _.b);
       `,
-    }).toThrowTransformError(
-      'The idx import must be a value import.',
-    );
+    }).toThrowTransformError('The idx import must be a value import.');
   });
-
 
   it('throws on named idx import', () => {
     expect(`
       import {idx} from 'idx';
       idx(base, _ => _.b);
-    `).toThrowTransformError(
-      'The idx import must be a default import.',
-    );
+    `).toThrowTransformError('The idx import must be a default import.');
   });
 
   it('throws on namespace idx import', () => {
     expect(`
       import * as idx from 'idx';
       idx(base, _ => _.b);
-    `).toThrowTransformError(
-      'The idx import must be a default import.',
-    );
+    `).toThrowTransformError('The idx import must be a default import.');
   });
 
   it('throws on default plus named import', () => {
     expect(`
       import idx, {foo} from 'idx';
       idx(base, _ => _.b);
-    `).toThrowTransformError(
-      'The idx import must be a single specifier.',
-    );
+    `).toThrowTransformError('The idx import must be a single specifier.');
   });
 
   it('throws on default plus namespace import', () => {
     expect(`
       import idx, * as foo from 'idx';
       idx(base, _ => _.b);
-    `).toThrowTransformError(
-      'The idx import must be a single specifier.',
-    );
+    `).toThrowTransformError('The idx import must be a single specifier.');
   });
 
   it('throws on named default plus other import', () => {
     expect(`
       import {default as idx, foo} from 'idx';
       idx(base, _ => _.b);
-    `).toThrowTransformError(
-      'The idx import must be a single specifier.',
-    );
+    `).toThrowTransformError('The idx import must be a single specifier.');
   });
 
   it('handles named default imports', () => {
