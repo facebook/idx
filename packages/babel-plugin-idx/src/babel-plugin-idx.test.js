@@ -299,8 +299,21 @@ describe('babel-plugin-idx', () => {
       );
     `).toTransformInto(`
       var _ref, _ref2, _ref3;
-
-      (_ref3 = (_ref2 = (_ref = base) != null ? (_ref = _ref.a) != null ? _ref.b : _ref : _ref) != null ? (_ref2 = _ref2.c) != null ? _ref2.d : _ref2 : _ref2) != null ? (_ref3 = _ref3.e) != null ? _ref3.f : _ref3 : _ref3;
+      (_ref3 =
+        (_ref2 =
+          (_ref = base) != null
+            ? (_ref = _ref.a) != null
+              ? _ref.b
+              : _ref
+            : _ref) != null
+          ? (_ref2 = _ref2.c) != null
+            ? _ref2.d
+            : _ref2
+          : _ref2) != null
+        ? (_ref3 = _ref3.e) != null
+          ? _ref3.f
+          : _ref3
+        : _ref3;
     `);
   });
 
