@@ -1,3 +1,9 @@
+2.4.0 / 2018-06-11
+==================
+
+  * Fix a bug with `babel-plugin-idx` when dealing with nested `idx` calls.
+  * Upgraded to Flow strict.
+
 2.3.0 / 2018-04-13
 ==================
 
