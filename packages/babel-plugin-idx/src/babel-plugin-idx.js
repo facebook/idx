@@ -125,8 +125,12 @@ module.exports = context => {
 
   function makeChain(node, state, inside) {
     if (t.isMemberExpression(node)) {
+      let object = node.object;
+      if (node.object.type === 'TSNonNullExpression') {
+        object = node.object.expression;
+      }
       return makeChain(
-        node.object,
+        object,
         state,
         makeCondition(
           t.MemberExpression(state.temp, node.property, node.computed),
