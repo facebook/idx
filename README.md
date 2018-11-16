@@ -12,14 +12,28 @@ support [optional chaining](https://github.com/tc39/proposal-optional-chaining).
 ## Install
 
 ```shell
-$ npm install idx
+$ npm install idx babel-plugin-idx
 ```
 
 or
 
 ```shell
-$ yarn add idx
+$ yarn add idx babel-plugin-idx
 ```
+
+[Configure Babel](https://babeljs.io/docs/en/configuration) to include the
+`babel-plugin-idx` Babel plugin.
+
+```javascript
+{
+  plugins: [
+    ["babel-plugin-idx"]
+  ]
+}
+```
+
+This is necessary for `idx` to behave correctly
+with minimal performance impact.
 
 ## Usage
 
@@ -52,9 +66,10 @@ idx(props, _ => _.user.friends[0].friends)
 The second argument must be a function that returns one or more nested member
 expressions. Any other expression has undefined behavior.
 
-## Flow Type
+## Static Typing
 
-[Flow](https://flow.org/) understands the `idx` idiom:
+[Flow](https://flow.org/) and [TypeScript](https://www.typescriptlang.org/)
+understand the `idx` idiom:
 
 ```javascript
 // @flow
@@ -66,13 +81,14 @@ function getName(props: User): ?string {
 }
 ```
 
-## Babel Transform
+## Babel Plugin
 
 The `idx` runtime function exists for the purpose of illustrating the expected
-behavior and is not meant to be executed. The `idx` function is used in
-conjunction with a Babel plugin that replaces it with better performing code.
+behavior and is not meant to be executed. The `idx` function requires the use of
+a Babel plugin that replaces it with an implementation that does not depend on
+details related to browser error messages.
 
-This babel plugin searches for requires or imports to the `idx` module and
+This Babel plugin searches for requires or imports to the `idx` module and
 replaces all its usages, so this code:
 
 ```javascript
@@ -94,7 +110,7 @@ function getFriends() {
 }
 ```
 
-(note that the original `import` gets also removed).
+Note that the original `import` gets also removed.
 
 It's possible to customize the name of the import/require, so code that is not
 directly requiring the `idx` npm package can also get transformed:
