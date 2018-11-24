@@ -14,7 +14,7 @@
     "build": "scripts/build.sh",
     "prepublish": "yarn run build && cp ../../README.md .",
     "test": "jest && yarn run tsc",
-    "tsc": "tsc --noEmit --strict"
+    "tsc": "tsc --noEmit --strict src/idx.test.ts"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
