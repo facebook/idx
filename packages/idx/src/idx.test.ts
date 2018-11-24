@@ -36,3 +36,25 @@ interface NullableStructure {
 let nullable: NullableStructure = {} as any;
 
 let baz: string | null | undefined = idx(nullable, _ => _.foo.bar.baz);
+
+interface WithMethods<T = any> {
+  foo?: {
+    bar?(): number;
+  };
+  baz?: {
+    fn?(): {inner?: string};
+  };
+  args?(a: number): number;
+  manyArgs?(a: number, b: string, c: boolean): number;
+  restArgs?(...args: string[]): string;
+  genrric?(arg: T): T;
+}
+
+let withMethods: WithMethods<boolean> = {} as any;
+
+let n: number | undefined | null = idx(withMethods, _ => _.foo.bar());
+n = idx(withMethods, _ => _.args(1));
+n = idx(withMethods, _ => _.manyArgs(1, 'b', true));
+let s: string | undefined | null = idx(withMethods, _ => _.baz.fn().inner);
+s = idx(withMethods, _ => _.restArgs('1', '2', '3', '4', '5', '6'));
+let b: boolean | undefined | null = idx(withMethods, _ => _.genrric(true));
