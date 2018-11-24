@@ -13,7 +13,8 @@
   "scripts": {
     "build": "scripts/build.sh",
     "prepublish": "yarn run build && cp ../../README.md .",
-    "test": "jest"
+    "test": "jest && yarn run tsc",
+    "tsc": "tsc --noEmit --strict"
   },
   "devDependencies": {
     "babel-cli": "^6.23.0",
