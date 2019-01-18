@@ -2,14 +2,14 @@
  * DeepRequiredArray
  * Nested array condition handler
  */
-interface DeepRequiredArray<T> extends Array<DeepRequired<NonNullable<T>>> {}
+interface DeepRequiredArray<T> extends Array<DeepRequired<T>> {}
 
 /**
  * DeepRequiredObject
  * Nested object condition handler
  */
 type DeepRequiredObject<T> = {
-  [P in keyof T]-?: DeepRequired<NonNullable<T[P]>>
+  [P in keyof T]-?: DeepRequired<T[P]>
 };
 
 /**
@@ -66,6 +66,6 @@ type DeepRequired<T> = T extends any[]
  */
 declare function idx<T1, T2>(
   prop: T1,
-  accessor: (prop: NonNullable<DeepRequired<T1>>) => T2,
-): T2 | null | undefined;
+  accessor: (prop: DeepRequired<T1>) => T2,
+): T2 | undefined;
 export default idx;

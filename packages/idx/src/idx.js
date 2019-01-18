@@ -61,7 +61,7 @@ function idx<Ti, Tv>(input: Ti, accessor: (input: Ti) => Tv): ?Tv {
   } catch (error) {
     if (error instanceof TypeError) {
       if (nullPattern.test(error)) {
-        return null;
+        return undefined;
       } else if (undefinedPattern.test(error)) {
         return undefined;
       }
