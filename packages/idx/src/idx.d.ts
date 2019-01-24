@@ -32,6 +32,12 @@ type DeepRequired<T> = T extends any[]
     : T extends object ? DeepRequiredObject<T> : T;
 
 /**
+ * UnboxDeepRequired
+ * Unbox type wraped with DeepRequired
+ */
+type UnboxDeepRequired<T> = T extends DeepRequired<infer R> ? R : T;
+
+/**
  * Traverses properties on objects and arrays. If an intermediate property is
  * either null or undefined, it is instead returned. The purpose of this method
  * is to simplify extracting properties from a chain of maybe-typed properties.
@@ -67,5 +73,5 @@ type DeepRequired<T> = T extends any[]
 declare function idx<T1, T2>(
   prop: T1,
   accessor: (prop: NonNullable<DeepRequired<T1>>) => T2,
-): T2 | null | undefined;
+): UnboxDeepRequired<T2> | null | undefined;
 export default idx;
