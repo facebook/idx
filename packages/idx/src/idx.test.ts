@@ -75,3 +75,12 @@ n = idx(withMethods, _ =>
 let s: string | undefined | null = idx(withMethods, _ => _.baz.fn().inner);
 s = idx(withMethods, _ => _.restArgs('1', '2', '3', '4', '5', '6'));
 let b: boolean | undefined | null = idx(withMethods, _ => _.genrric(true));
+
+let foo = idx(withMethods, _ => _.foo);
+// foo should be { bar?(): number }
+let fooTest1: typeof foo = {};
+let fooTest2: typeof foo = {
+  bar(): number {
+    return 1;
+  },
+};
