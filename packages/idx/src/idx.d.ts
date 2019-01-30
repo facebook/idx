@@ -13,6 +13,14 @@ type DeepRequiredObject<T> = {
 };
 
 /**
+ * DeepRequiredMap
+ * Nested Map condition handler
+ */
+type DeepRequiredMap<K, V> = {
+  get(p: K): DeepRequired<V>
+}
+
+/**
  * Function that has deeply required return type
  */
 type FunctionWithRequiredReturnType<
@@ -29,7 +37,9 @@ type DeepRequired<T> = T extends any[]
   ? DeepRequiredArray<T[number]>
   : T extends (...args: any[]) => any
     ? FunctionWithRequiredReturnType<T>
-    : T extends object ? DeepRequiredObject<T> : T;
+    : T extends Map<infer K, infer V>
+      ? DeepRequiredMap<K, V>
+      : T extends object ? DeepRequiredObject<T> : T;
 
 /**
  * Traverses properties on objects and arrays. If an intermediate property is
