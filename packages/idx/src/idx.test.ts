@@ -9,6 +9,14 @@ interface DeepStructure {
             item?: string;
           };
         }>;
+        map?: Map<
+          string,
+          {
+            innerValue?: {
+              item?: string;
+            };
+          }
+        >;
       };
     };
   };
@@ -23,6 +31,8 @@ let item: string | undefined | null = idx(
 
 let baz = idx(deep, _ => _.foo.bar.baz);
 item = idx(baz, _ => _.arr[0].inner.item);
+
+let map = idx(deep, _ => _.foo.bar.baz.map.get('foo').innerValue.item);
 
 let listOfDeep: DeepStructure[] = [];
 
