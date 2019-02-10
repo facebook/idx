@@ -3,7 +3,6 @@
   "scripts": {
     "build": "lerna run build",
     "lint": "eslint --ignore-path .gitignore .",
-    "precommit": "pretty-quick --staged",
     "postinstall": "lerna bootstrap --concurrency=1",
     "test": "lerna run test"
   },
@@ -15,10 +14,15 @@
   "devDependencies": {
     "eslint": "^3.16.1",
     "eslint-config-fbjs-opensource": "^1.0.0",
-    "husky": "^0.14.3",
+    "husky": "^1.3.1",
     "lerna": "^2.1.2",
     "prettier": "1.13.5",
     "pretty-quick": "^1.6.0",
     "typescript": "^3.1.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
