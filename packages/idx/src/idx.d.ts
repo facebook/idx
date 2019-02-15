@@ -33,9 +33,15 @@ type DeepRequired<T> = T extends any[]
 
 /**
  * UnboxDeepRequired
- * Unbox type wraped with DeepRequired
+ * Unbox type warped with DeepRequired
  */
-type UnboxDeepRequired<T> = T extends DeepRequired<infer R> ? R : T;
+type UnboxDeepRequired<T> = T extends DeepRequired<any>
+  ? T extends DeepRequiredArray<infer R>
+    ? Array<R>
+    : T extends (...args: infer A) => infer R
+      ? (...args: A) => UnboxDeepRequired<R>
+      : T extends DeepRequiredObject<infer R> ? R : T
+  : T;
 
 /**
  * Traverses properties on objects and arrays. If an intermediate property is

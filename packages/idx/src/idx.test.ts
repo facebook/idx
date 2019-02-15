@@ -1,20 +1,28 @@
 import idx from './idx';
 
+interface Item {
+  inner?: {
+    item?: string;
+  };
+}
+
 interface DeepStructure {
   foo?: {
     bar?: {
       baz?: {
-        arr?: Array<{
-          inner?: {
-            item?: string;
-          };
-        }>;
+        arr?: Item[];
       };
     };
   };
 }
 
 let deep: DeepStructure = {} as any;
+
+let items = idx(deep, _ => _.foo.bar.baz.arr);
+
+let itemOne: Item = items![0];
+
+let innerOfItemOne: {item?: string} | undefined | null = itemOne.inner;
 
 let item: string | undefined | null = idx(
   deep,
