@@ -1,94 +1,76 @@
-import idx from './idx';
+import idx, {IDXOptional} from './idx';
 
-interface Item {
+/**
+ * Test functions are not run in runtime. They are only type checked with
+ * TypeScript compiler
+ */
+declare function it(description: string, test: () => void): void;
+
+interface Item<T = any> {
+  t?: T;
   inner?: {
     item?: string;
   };
 }
 
-interface DeepStructure {
+interface DeepStructure<T = any> {
+  str?: string;
+  undef?: undefined;
+  null?: null;
+  generic?: T;
+  arr?: {inner?: string}[];
   foo?: {
     bar?: {
       baz?: {
-        arr?: Item[];
+        arr?: Item<T>[];
       };
     };
   };
-}
-
-let deep: DeepStructure = {} as any;
-
-let items = idx(deep, _ => _.foo.bar.baz.arr);
-
-let itemOne: Item = items![0];
-
-let innerOfItemOne: {item?: string} | undefined | null = itemOne.inner;
-
-let item: string | undefined | null = idx(
-  deep,
-  _ => _.foo.bar.baz.arr[0].inner.item,
-);
-
-let baz = idx(deep, _ => _.foo.bar.baz);
-item = idx(baz, _ => _.arr[0].inner.item);
-
-let listOfDeep: DeepStructure[] = [];
-
-item = idx(listOfDeep, _ => _[0].foo.bar.baz.arr[0].inner.item);
-
-interface NullableStructure {
-  foo: {
-    bar: {
-      baz: string | null;
-    } | null;
-  } | null;
-}
-
-let nullable: NullableStructure = {} as any;
-
-let bazz: string | null | undefined = idx(nullable, _ => _.foo.bar.baz);
-
-interface WithMethods<T = any> {
-  foo?: {
-    bar?(): number;
+  requiredInner?: {
+    inner: boolean;
   };
-  baz?: {
-    fn?(): {inner?: string};
-  };
-  args?(a: number): number;
-  manyArgs?(
-    a: number,
-    b: string,
-    c: boolean,
-    d: number,
-    e: number,
-    f: number,
-    g: string,
-    h: string,
-    k: number,
-    l: boolean,
-    m: string,
-  ): number;
-  restArgs?(...args: string[]): string;
-  genrric?(arg: T): T;
+  method?(): {optional?: {member?: Item<T>}};
+  args?(a: string, b: number, c?: boolean): Item<T>;
+  requiredReturnType?(): {inner: number};
 }
 
-let withMethods: WithMethods<boolean> = {} as any;
+let deep: DeepStructure = {};
 
-let n: number | undefined | null = idx(withMethods, _ => _.foo.bar());
-n = idx(withMethods, _ => _.args(1));
-n = idx(withMethods, _ =>
-  _.manyArgs(1, 'b', true, 1, 2, 3, '4', '5', 1, true, ''),
-);
-let s: string | undefined | null = idx(withMethods, _ => _.baz.fn().inner);
-s = idx(withMethods, _ => _.restArgs('1', '2', '3', '4', '5', '6'));
-let b: boolean | undefined | null = idx(withMethods, _ => _.genrric(true));
+it('can access deep properties without null type assertion', () => {
+  let str: IDXOptional<string> = idx(deep, _ => _.str);
+  let undef: undefined | null = idx(deep, _ => _.undef);
+  let null_: undefined | null = idx(deep, _ => _.null);
+  let arr: IDXOptional<Item[]> = idx(deep, _ => _.foo.bar.baz.arr);
+});
 
-let foo = idx(withMethods, _ => _.foo);
-// foo should be { bar?(): number }
-let fooTest1: typeof foo = {};
-let fooTest2: typeof foo = {
-  bar(): number {
-    return 1;
-  },
-};
+it('can call deep methods without null type assertion', () => {
+  let member: IDXOptional<Item> = idx(deep, _ => _.method().optional.member);
+  member = idx(deep, _ => _.args('', 1, true));
+  member = idx(deep, _ => _.args('', 1));
+});
+
+it('can tap into optional structures (array and objects)', () => {
+  let str: IDXOptional<string> = idx(
+    deep,
+    _ => _.foo.bar.baz.arr[0].inner.item,
+  );
+});
+
+it('returns optional object while maintaining the original type of the object structure', () => {
+  let req = idx(deep, _ => _.requiredInner);
+  if (req) {
+    req.inner.valueOf(); // can safely call because inner is not optional
+  }
+});
+
+it('returns optional array while maintaining the original type of array item type', () => {
+  // inner property type did not become `string | null | undefined`
+  let arr: IDXOptional<Array<{inner?: string}>> = idx(deep, _ => _.arr);
+});
+
+it('maintains the return type of method calls', () => {
+  let req = idx(deep, _ => _.requiredReturnType());
+  if (req) {
+    req.inner.toFixed(); // can safely call because inner is not optional
+  }
+});
