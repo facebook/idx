@@ -5,6 +5,12 @@
 interface DeepRequiredArray<T> extends Array<DeepRequired<NonNullable<T>>> {}
 
 /**
+ * Return type of calling `idx()`. `idx` always returns an optional value
+ * @template T Value can be null or undefined
+ */
+export type IDXOptional<T> = T | null | undefined;
+
+/**
  * DeepRequiredObject
  * Nested object condition handler
  */
@@ -33,15 +39,23 @@ type DeepRequired<T> = T extends any[]
 
 /**
  * UnboxDeepRequired
- * Unbox type warped with DeepRequired
+ * Unbox type wrapped with DeepRequired
  */
-type UnboxDeepRequired<T> = T extends DeepRequired<any>
-  ? T extends DeepRequiredArray<infer R>
-    ? Array<R>
-    : T extends (...args: infer A) => infer R
-      ? (...args: A) => UnboxDeepRequired<R>
-      : T extends DeepRequiredObject<infer R> ? R : T
-  : T;
+type UnboxDeepRequired<T> = T extends string
+  ? string
+  : T extends number
+    ? number
+    : T extends boolean
+      ? boolean
+      : T extends symbol
+        ? symbol
+        : T extends bigint
+          ? bigint
+          : T extends DeepRequiredArray<infer R>
+            ? Array<R>
+            : T extends (...args: infer A) => DeepRequired<infer R>
+              ? (...args: A) => UnboxDeepRequired<R>
+              : T extends DeepRequiredObject<infer R> ? R : T;
 
 /**
  * Traverses properties on objects and arrays. If an intermediate property is
@@ -79,5 +93,6 @@ type UnboxDeepRequired<T> = T extends DeepRequired<any>
 declare function idx<T1, T2>(
   prop: T1,
   accessor: (prop: NonNullable<DeepRequired<T1>>) => T2,
-): UnboxDeepRequired<T2> | null | undefined;
+): IDXOptional<UnboxDeepRequired<T2>>;
+
 export default idx;
