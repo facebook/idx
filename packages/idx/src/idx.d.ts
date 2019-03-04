@@ -14,9 +14,9 @@ export type IDXOptional<T> = T | null | undefined;
  * DeepRequiredObject
  * Nested object condition handler
  */
-type DeepRequiredObject<T> = {
-  [P in keyof T]-?: DeepRequired<NonNullable<T[P]>>
-};
+type DeepRequiredObject<T> = T extends object
+  ? {[P in keyof T]-?: DeepRequired<NonNullable<T[P]>>}
+  : T;
 
 /**
  * Function that has deeply required return type
@@ -41,21 +41,19 @@ type DeepRequired<T> = T extends any[]
  * UnboxDeepRequired
  * Unbox type wrapped with DeepRequired
  */
-type UnboxDeepRequired<T> = T extends string
-  ? string
-  : T extends number
-    ? number
-    : T extends boolean
-      ? boolean
-      : T extends symbol
-        ? symbol
-        : T extends bigint
-          ? bigint
-          : T extends DeepRequiredArray<infer R>
-            ? Array<R>
-            : T extends (...args: infer A) => DeepRequired<infer R>
-              ? (...args: A) => UnboxDeepRequired<R>
-              : T extends DeepRequiredObject<infer R> ? R : T;
+type UnboxDeepRequired<T> = T extends DeepRequiredArray<infer R>
+  ? Array<R>
+  : T extends (...args: infer A) => DeepRequired<infer R>
+    ? (...args: A) => UnboxDeepRequired<R>
+    : T extends DeepRequiredObject<infer R>
+      ? R
+      : T extends string
+        ? string
+        : T extends number
+          ? number
+          : T extends boolean
+            ? boolean
+            : T extends symbol ? symbol : T extends bigint ? bigint : T;
 
 /**
  * Traverses properties on objects and arrays. If an intermediate property is
