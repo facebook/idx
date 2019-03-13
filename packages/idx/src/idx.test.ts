@@ -74,3 +74,16 @@ it('maintains the return type of method calls', () => {
     req.inner.toFixed(); // can safely call because inner is not optional
   }
 });
+
+it('can unbox enums', () => {
+  enum Enum {
+    ONE = 'ONE',
+  }
+  type WithEnum = {
+    foo?: {
+      enum?: Enum;
+    };
+  };
+
+  let e: IDXOptional<Enum> = idx({} as WithEnum, _ => _.foo.enum);
+});

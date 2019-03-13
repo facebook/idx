@@ -14,18 +14,16 @@ export type IDXOptional<T> = T | null | undefined;
  * DeepRequiredObject
  * Nested object condition handler
  */
-type DeepRequiredObject<T> = {
+type DeepRequiredObject<T extends object> = {
   [P in keyof T]-?: DeepRequired<NonNullable<T[P]>>
 };
 
 /**
  * Function that has deeply required return type
  */
-type FunctionWithRequiredReturnType<
-  T extends (...args: any[]) => any
-> = T extends (...args: infer A) => infer R
-  ? (...args: A) => DeepRequired<R>
-  : never;
+type FunctionWithRequiredReturnType<A extends any[], R> = (
+  ...args: A
+) => DeepRequired<R>;
 
 /**
  * DeepRequired
@@ -33,29 +31,25 @@ type FunctionWithRequiredReturnType<
  */
 type DeepRequired<T> = T extends any[]
   ? DeepRequiredArray<T[number]>
-  : T extends (...args: any[]) => any
-    ? FunctionWithRequiredReturnType<T>
-    : T extends object ? DeepRequiredObject<T> : T;
+  : T extends (...args: infer A) => infer R
+  ? FunctionWithRequiredReturnType<A, R>
+  : T extends object
+  ? DeepRequiredObject<T>
+  : T;
 
 /**
  * UnboxDeepRequired
  * Unbox type wrapped with DeepRequired
  */
-type UnboxDeepRequired<T> = T extends string
-  ? string
-  : T extends number
-    ? number
-    : T extends boolean
-      ? boolean
-      : T extends symbol
-        ? symbol
-        : T extends bigint
-          ? bigint
-          : T extends DeepRequiredArray<infer R>
-            ? Array<R>
-            : T extends (...args: infer A) => DeepRequired<infer R>
-              ? (...args: A) => UnboxDeepRequired<R>
-              : T extends DeepRequiredObject<infer R> ? R : T;
+type UnboxDeepRequired<T> = T extends DeepRequired<infer R>
+  ? R
+  : T extends FunctionWithRequiredReturnType<infer A, infer R>
+  ? (...args: A) => R
+  : T extends DeepRequiredArray<infer R>
+  ? Array<R>
+  : T extends DeepRequiredObject<infer R>
+  ? R
+  : T;
 
 /**
  * Traverses properties on objects and arrays. If an intermediate property is
@@ -94,5 +88,4 @@ declare function idx<T1, T2>(
   prop: T1,
   accessor: (prop: NonNullable<DeepRequired<T1>>) => T2,
 ): IDXOptional<UnboxDeepRequired<T2>>;
-
 export default idx;
