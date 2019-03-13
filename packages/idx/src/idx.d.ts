@@ -45,15 +45,7 @@ type UnboxDeepRequired<T> = T extends DeepRequiredArray<infer R>
   ? Array<R>
   : T extends (...args: infer A) => DeepRequired<infer R>
     ? (...args: A) => UnboxDeepRequired<R>
-    : T extends DeepRequiredObject<infer R>
-      ? R
-      : T extends string
-        ? string
-        : T extends number
-          ? number
-          : T extends boolean
-            ? boolean
-            : T extends symbol ? symbol : T extends bigint ? bigint : T;
+    : T extends DeepRequiredObject<infer R> ? R : T;
 
 /**
  * Traverses properties on objects and arrays. If an intermediate property is
