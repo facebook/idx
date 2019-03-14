@@ -13,6 +13,10 @@ interface Item<T = any> {
   };
 }
 
+interface MethodReturnType<T = any> {
+  optional?: {member?: Item<T>};
+}
+
 interface DeepStructure<T = any> {
   str?: string;
   undef?: undefined;
@@ -29,7 +33,7 @@ interface DeepStructure<T = any> {
   requiredInner?: {
     inner: boolean;
   };
-  method?(): {optional?: {member?: Item<T>}};
+  method?(): MethodReturnType<T>;
   args?(a: string, b: number, c?: boolean): Item<T>;
   requiredReturnType?(): {inner: number};
 }
@@ -86,4 +90,10 @@ it('can unbox enums', () => {
   };
 
   let e: IDXOptional<Enum> = idx({} as WithEnum, _ => _.foo.enum);
+});
+
+it('can unbox function', () => {
+  const returnValue = idx(deep, _ => _.method());
+  const control: MethodReturnType = {optional: {}};
+  const treatment: typeof returnValue = {optional: {}};
 });
