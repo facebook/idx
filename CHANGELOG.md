@@ -1,100 +1,86 @@
-2.5.5 / 2019-03-13
-==================
+# 2.5.6 / 2019-05-05
 
-  * TypeScript: Make `DeepRequiredObject` omit primitive types.
-  * TypeScript: Update `UnboxDeepRequired` to check for objects and arrays before primitives.
-  * Moved `typescript` dependency down to `idx` package.
+- TypeScript: Refactor `DeepRequiredObject` using `extends`.
 
-2.5.4 / 2019-02-21
-==================
+# 2.5.5 / 2019-03-13
 
-  * TypeScript: Fix bugs with the `UnboxDeepRequired` type.
+- TypeScript: Make `DeepRequiredObject` omit primitive types.
+- TypeScript: Update `UnboxDeepRequired` to check for objects and arrays before primitives.
+- Moved `typescript` dependency down to `idx` package.
 
-2.5.3 / 2019-02-09
-==================
+# 2.5.4 / 2019-02-21
 
-  * TypeScript: Fix return type with new `UnboxDeepRequired` type.
-  * Upgraded multiple dependency version.
+- TypeScript: Fix bugs with the `UnboxDeepRequired` type.
 
-2.5.2 / 2018-11-26
-==================
+# 2.5.3 / 2019-02-09
 
-  * TypeScript: Allow nullable values.
+- TypeScript: Fix return type with new `UnboxDeepRequired` type.
+- Upgraded multiple dependency version.
 
-2.5.1 / 2018-11-23
-==================
+# 2.5.2 / 2018-11-26
 
-  * TypeScript: Carry over argument types in methods.
+- TypeScript: Allow nullable values.
 
-2.5.0 / 2018-11-16
-==================
+# 2.5.1 / 2018-11-23
 
-  * TypeScript: Support `strictNullCheck` flag.
+- TypeScript: Carry over argument types in methods.
 
-2.4.0 / 2018-06-11
-==================
+# 2.5.0 / 2018-11-16
 
-  * Fix a bug with `babel-plugin-idx` when dealing with nested `idx` calls.
-  * Upgraded to Flow strict.
+- TypeScript: Support `strictNullCheck` flag.
 
-2.3.0 / 2018-04-13
-==================
+# 2.4.0 / 2018-06-11
 
-  * Fix detection in browsers with capitalized `NULL` or `UNDEFINED`.
+- Fix a bug with `babel-plugin-idx` when dealing with nested `idx` calls.
+- Upgraded to Flow strict.
 
-2.2.0 / 2017-10-27
-==================
+# 2.3.0 / 2018-04-13
 
-  * Added TypeScript definitions for `idx`.
-  * Relicensed `babel-plugin-idx` and `idx` as MIT.
+- Fix detection in browsers with capitalized `NULL` or `UNDEFINED`.
 
-2.1.0 / 2017-10-09
-==================
+# 2.2.0 / 2017-10-27
 
-  * Simplify `idx` error message parsing and remove `Function` constructor use.
-  * Export `idx` as `default` for use with `import`.
+- Added TypeScript definitions for `idx`.
+- Relicensed `babel-plugin-idx` and `idx` as MIT.
 
-2.0.0 / 2017-08-31
-==================
+# 2.1.0 / 2017-10-09
 
-  * Disallow call expressions from within `idx` (originally introduced in 1.1.0).
-  * Disallow invalid type imports from `idx`.
-  * Change `babel-plugin-idx` to stop hardcoding `idx` (so it can be imported as any identifier).
-  * Fix `idx` calls in async methods.
+- Simplify `idx` error message parsing and remove `Function` constructor use.
+- Export `idx` as `default` for use with `import`.
 
-1.5.1 / 2017-04-11
-==================
+# 2.0.0 / 2017-08-31
 
-  * Fix `babel-plugin-idx` when `idx`'s parent is a scope-creating expression.
+- Disallow call expressions from within `idx` (originally introduced in 1.1.0).
+- Disallow invalid type imports from `idx`.
+- Change `babel-plugin-idx` to stop hardcoding `idx` (so it can be imported as any identifier).
+- Fix `idx` calls in async methods.
 
-1.5.0 / 2017-04-09
-==================
+# 1.5.1 / 2017-04-11
 
-  * Improve `babel-plugin-idx` to use only one temporary variable.
-  * Add fast path for source files without references to "idx".
+- Fix `babel-plugin-idx` when `idx`'s parent is a scope-creating expression.
 
-1.4.0 / 2017-03-30
-==================
+# 1.5.0 / 2017-04-09
 
-  * Better `babel-plugin-idx` error messages.
-  * Add fast path for source files without references to "idx".
+- Improve `babel-plugin-idx` to use only one temporary variable.
+- Add fast path for source files without references to "idx".
 
-1.3.0 / 2017-03-29
-==================
+# 1.4.0 / 2017-03-30
 
-  * Fix `babel-plugin-idx` for async functions.
+- Better `babel-plugin-idx` error messages.
+- Add fast path for source files without references to "idx".
 
-1.2.0 / 2017-03-22
-==================
+# 1.3.0 / 2017-03-29
 
-  * Strip `@providesModule` from `idx.js`.
+- Fix `babel-plugin-idx` for async functions.
 
-1.1.0 / 2017-03-13
-==================
+# 1.2.0 / 2017-03-22
 
-  * Added support for method calls (eg. `idx(foo, _ => _.bar())`).
+- Strip `@providesModule` from `idx.js`.
 
-1.0.1 / 2017-03-13
-==================
+# 1.1.0 / 2017-03-13
 
-  * Initial release.
+- Added support for method calls (eg. `idx(foo, _ => _.bar())`).
+
+# 1.0.1 / 2017-03-13
+
+- Initial release.
