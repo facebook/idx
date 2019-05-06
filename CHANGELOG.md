@@ -1,3 +1,36 @@
+2.5.5 / 2019-03-13
+==================
+
+  * TypeScript: Make `DeepRequiredObject` omit primitive types.
+  * TypeScript: Update `UnboxDeepRequired` to check for objects and arrays before primitives.
+  * Moved `typescript` dependency down to `idx` package.
+
+2.5.4 / 2019-02-21
+==================
+
+  * TypeScript: Fix bugs with the `UnboxDeepRequired` type.
+
+2.5.3 / 2019-02-09
+==================
+
+  * TypeScript: Fix return type with new `UnboxDeepRequired` type.
+  * Upgraded multiple dependency version.
+
+2.5.2 / 2018-11-26
+==================
+
+  * TypeScript: Allow nullable values.
+
+2.5.1 / 2018-11-23
+==================
+
+  * TypeScript: Carry over argument types in methods.
+
+2.5.0 / 2018-11-16
+==================
+
+  * TypeScript: Support `strictNullCheck` flag.
+
 2.4.0 / 2018-06-11
 ==================
 
