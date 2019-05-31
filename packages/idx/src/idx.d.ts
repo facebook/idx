@@ -37,9 +37,7 @@ type DeepRequired<T> = T extends any[]
   ? FunctionWithRequiredReturnType<T>
   : T extends object
   ? DeepRequiredObject<T>
-  : T extends undefined | null
-  ? never
-  : T;
+  : NonNullable<T>;
 
 /**
  * UnboxDeepRequired
