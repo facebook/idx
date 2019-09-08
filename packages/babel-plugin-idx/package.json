@@ -15,12 +15,12 @@
     "test": "jest"
   },
   "devDependencies": {
-    "babel-cli": "^6.23.0",
-    "babel-jest": "^19.0.0",
-    "babel-plugin-transform-async-to-generator": "^6.22.0",
-    "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "babel-preset-env": "^1.1.11",
-    "jest": "^19.0.2"
+    "@babel/cli": "^7.6.0",
+    "@babel/plugin-transform-async-to-generator": "^7.5.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.4.4",
+    "@babel/preset-env": "^7.6.0",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0"
   },
   "jest": {
     "testEnvironment": "node",

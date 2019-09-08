@@ -11,10 +11,10 @@
 
 jest.autoMockOff();
 
-const {transform: babelTransform} = require('babel-core');
+const {transform: babelTransform} = require('@babel/core');
 const babelPluginIdx = require('./babel-plugin-idx');
-const transformAsyncToGenerator = require('babel-plugin-transform-async-to-generator');
-const syntaxFlow = require('babel-plugin-syntax-flow');
+const transformAsyncToGenerator = require('@babel/plugin-transform-async-to-generator');
+const syntaxFlow = require('@babel/plugin-syntax-flow');
 const vm = require('vm');
 
 function transform(source, plugins, options) {
@@ -25,27 +25,34 @@ function transform(source, plugins, options) {
 }
 
 const asyncToGeneratorHelperCode = `
+  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+      var info = gen[key](arg);
+      var value = info.value;
+    } catch (error) {
+      reject(error);
+      return;
+    }
+    if (info.done) {
+      resolve(value);
+    } else {
+      Promise.resolve(value).then(_next, _throw);
+    }
+  }
+
   function _asyncToGenerator(fn) {
-    return function () {
-      var gen = fn.apply(this, arguments);
-      return new Promise(function (resolve, reject) {
-        function step(key, arg) {
-          try {
-            var info = gen[key](arg);
-            var value = info.value;
-          } catch (error) {
-            reject(error); return;
-          } if (info.done) {
-            resolve(value);
-          } else {
-            return Promise.resolve(value).then(function (value) {
-              step("next", value);
-            }, function (err) {
-              step("throw", err);
-            });
-          }
+    return function() {
+      var self = this,
+        args = arguments;
+      return new Promise(function(resolve, reject) {
+        var gen = fn.apply(self, args);
+        function _next(value) {
+          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
         }
-        return step("next");
+        function _throw(err) {
+          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+        }
+        _next(undefined);
       });
     };
   }
@@ -57,63 +64,60 @@ describe('babel-plugin-idx', () => {
       return string.replace(/\s+/g, '');
     }
 
-    jasmine.addMatchers({
-      toTransformInto: () => ({
-        compare(input, expected) {
+    expect.extend({
+      toTransformInto(input, expected) {
+        const plugins = typeof input === 'string' ? null : input.plugins;
+        const options = typeof input === 'string' ? undefined : input.options;
+        const code = typeof input === 'string' ? input : input.code;
+        const actual = transform(code, plugins, options);
+        const pass =
+          stringByTrimmingSpaces(actual) === stringByTrimmingSpaces(expected);
+        return {
+          pass,
+          message: () =>
+            'Expected input to transform into:\n' +
+            expected +
+            '\n' +
+            'Instead, got:\n' +
+            actual,
+        };
+      },
+      toThrowTransformError(input, expected) {
+        try {
           const plugins = typeof input === 'string' ? null : input.plugins;
           const options = typeof input === 'string' ? undefined : input.options;
           const code = typeof input === 'string' ? input : input.code;
-          const actual = transform(code, plugins, options);
-          const pass =
-            stringByTrimmingSpaces(actual) === stringByTrimmingSpaces(expected);
-          return {
-            pass,
-            message:
-              'Expected input to transform into:\n' +
-              expected +
-              '\n' +
-              'Instead, got:\n' +
-              actual,
-          };
-        },
-      }),
-      toThrowTransformError: () => ({
-        compare(input, expected) {
-          try {
-            const plugins = typeof input === 'string' ? null : input.plugins;
-            const options =
-              typeof input === 'string' ? undefined : input.options;
-            const code = typeof input === 'string' ? input : input.code;
-            transform(code, plugins, options);
-          } catch (error) {
-            const actual = error.message.substr(9); // Strip "unknown:".
-            return {
-              pass: actual === expected,
-              message:
-                'Expected transform to throw "' +
-                expected +
-                '", but instead ' +
-                'got "' +
-                actual +
-                '".',
-            };
-          }
-          return {
-            pass: false,
-            message: 'Expected transform to throw "' + expected + '".',
-          };
-        },
-      }),
-      toReturn: () => ({
-        compare(input, expected) {
-          const code = transform(input, undefined);
-          const actual = vm.runInNewContext(code);
+          transform(code, plugins, options);
+        } catch (error) {
+          const actual = error.message.substring(
+            11, // Strip "undefined: ".
+            error.message.indexOf('\n', expected.length), // Strip code snippet.
+          );
           return {
             pass: actual === expected,
-            message: 'Expected "' + expected + '" but got "' + actual + '".',
+            message: () =>
+              'Expected transform to throw "' +
+              expected +
+              '", but instead ' +
+              'got "' +
+              actual +
+              '".',
           };
-        },
-      }),
+        }
+        return {
+          pass: false,
+          message: () => 'Expected transform to throw "' + expected + '".',
+        };
+      },
+      toReturn(input, expected) {
+        const code = transform(input, undefined);
+        const actual = vm.runInNewContext(code);
+        return {
+          pass: actual === expected,
+          message: () =>
+            'Expected "' + expected + '" but got "' + actual + '".',
+        };
+      },
     });
   });
 
@@ -327,26 +331,28 @@ describe('babel-plugin-idx', () => {
         }
       `,
     }).toTransformInto(`
-      let f = (() => {
-        var _ref2 = _asyncToGenerator(function* () {
-          var _ref;
-          (_ref = base) != null ?
-            (_ref = _ref.b) != null ?
-              (_ref = _ref.c) != null ?
-                (_ref = _ref.d) != null ?
-                  _ref.e :
-                _ref :
-              _ref :
-            _ref :
-          _ref;
-        });
-
-        return function f() {
-          return _ref2.apply(this, arguments);
-        };
-      })();
-
       ${asyncToGeneratorHelperCode}
+
+      function f() {
+        return _f.apply(this, arguments);
+      }
+
+      function _f() {
+        _f = _asyncToGenerator(function*() {
+          var _ref;
+
+          (_ref = base) != null
+            ? (_ref = _ref.b) != null
+              ? (_ref = _ref.c) != null
+                ? (_ref = _ref.d) != null
+                  ? _ref.e
+                  : _ref
+                : _ref
+              : _ref
+            : _ref;
+        });
+        return _f.apply(this, arguments);
+      }
     `);
   });
 
@@ -360,26 +366,28 @@ describe('babel-plugin-idx', () => {
         }
       `,
     }).toTransformInto(`
-      let f = (() => {
-        var _ref2 = _asyncToGenerator(function* () {
-          var _ref;
-          (_ref = base) != null ?
-            (_ref = _ref.b) != null ?
-              (_ref = _ref.c) != null ?
-                (_ref = _ref.d) != null ?
-                  _ref.e :
-                _ref :
-              _ref :
-            _ref :
-          _ref;
-        });
-
-        return function f() {
-          return _ref2.apply(this, arguments);
-        };
-      })();
-
       ${asyncToGeneratorHelperCode}
+
+      function f() {
+        return _f.apply(this, arguments);
+      }
+
+      function _f() {
+        _f = _asyncToGenerator(function*() {
+          var _ref;
+
+          (_ref = base) != null
+            ? (_ref = _ref.b) != null
+              ? (_ref = _ref.c) != null
+                ? (_ref = _ref.d) != null
+                  ? _ref.e
+                  : _ref
+                : _ref
+              : _ref
+            : _ref;
+        });
+        return _f.apply(this, arguments);
+      }
     `);
   });
 
@@ -493,14 +501,6 @@ describe('babel-plugin-idx', () => {
       let idx = require('idx');
       idx(base, _ => _.b);
       idx = null;
-    `).toThrowTransformError('`idx` cannot be redefined.');
-  });
-
-  it('throws if there is a scope conflict', () => {
-    expect(`
-      let idx = require('idx');
-      idx(base, _ => _.b);
-      function idx() {}
     `).toThrowTransformError('`idx` cannot be redefined.');
   });
 
