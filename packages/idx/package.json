@@ -13,20 +13,24 @@
   "scripts": {
     "build": "scripts/build.sh",
     "prepublish": "yarn run build && cp ../../README.md .",
-    "test": "jest && yarn run tsc",
+    "test": "jest idx.test.js && yarn run tsc",
     "tsc": "tsc --noEmit --strict src/idx.test.ts"
   },
   "devDependencies": {
-    "babel-cli": "^6.23.0",
-    "babel-jest": "^19.0.0",
-    "babel-plugin-transform-flow-strip-types": "^6.22.0",
-    "babel-preset-env": "^1.1.11",
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.4.4",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-typescript": "^7.6.0",
+    "babel-jest": "^24.9.0",
+    "babel-preset-env": "^1.7.0",
     "flow-bin": "^0.92.1",
-    "jest": "^19.0.2",
+    "jest": "^24.9.0",
     "typescript": "^3.3.3333"
   },
   "jest": {
     "testEnvironment": "node",
     "rootDir": "src"
-  }
+  },
+  "dependencies": {}
 }

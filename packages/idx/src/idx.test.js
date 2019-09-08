@@ -9,9 +9,9 @@
 
 'use strict'; // eslint-disable-line strict
 
-jest.unmock('idx');
+jest.unmock('./idx');
 
-const idx = require('idx');
+const idx = require('./idx');
 
 describe('idx', () => {
   it('returns properties that exist', () => {
