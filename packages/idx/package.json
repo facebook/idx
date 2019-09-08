@@ -23,7 +23,6 @@
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-typescript": "^7.6.0",
     "babel-jest": "^24.9.0",
-    "babel-preset-env": "^1.7.0",
     "flow-bin": "^0.107.0",
     "jest": "^24.9.0",
     "typescript": "^3.3.3333"
