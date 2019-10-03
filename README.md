@@ -103,10 +103,10 @@ gets transformed to something like:
 
 ```javascript
 function getFriends() {
-  props.user == null ? props.user :
+  return props.user == null ? props.user :
   props.user.friends == null ? props.user.friends :
   props.user.friends[0] == null ? props.user.friends[0] :
-  return props.user.friends[0].friends
+  props.user.friends[0].friends
 }
 ```
 
