@@ -12,7 +12,7 @@
     "trailingComma": "all"
   },
   "devDependencies": {
-    "eslint": "^5.1.0",
+    "eslint": "^6.8.0",
     "eslint-config-fbjs-opensource": "^2.0.1",
     "husky": "^1.3.1",
     "lerna": "^3.11.0",

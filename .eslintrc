@@ -1,3 +1,6 @@
 {
-  "extends": "fbjs-opensource"
+  "extends": "fbjs-opensource",
+  "rules": {
+    "max-len": 0
+  }
 }
