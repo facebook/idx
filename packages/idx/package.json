@@ -17,15 +17,15 @@
     "tsc": "tsc --noEmit --strict src/idx.test.ts"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.0",
-    "@babel/core": "^7.6.0",
-    "@babel/plugin-transform-flow-strip-types": "^7.4.4",
-    "@babel/preset-env": "^7.6.0",
-    "@babel/preset-typescript": "^7.6.0",
-    "babel-jest": "^24.9.0",
-    "flow-bin": "^0.107.0",
-    "jest": "^24.9.0",
-    "typescript": "^3.3.3333"
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-typescript": "^7.9.0",
+    "babel-jest": "^25.2.6",
+    "flow-bin": "^0.122.0",
+    "jest": "^25.2.7",
+    "typescript": "^3.8.3"
   },
   "jest": {
     "testEnvironment": "node",
