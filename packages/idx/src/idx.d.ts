@@ -22,7 +22,7 @@ export type IDXOptional<T> = T | null | undefined;
  * Nested object condition handler
  */
 type DeepRequiredObject<T extends object> = {
-  [P in keyof T]-?: DeepRequired<NonNullable<T[P]>>
+  [P in keyof T]-?: DeepRequired<NonNullable<T[P]>>;
 };
 
 /**
