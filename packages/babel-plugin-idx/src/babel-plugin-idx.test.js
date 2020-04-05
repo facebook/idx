@@ -90,7 +90,7 @@ describe('babel-plugin-idx', () => {
           transform(code, plugins, options);
         } catch (error) {
           const actual = error.message.substring(
-            11, // Strip "undefined: ".
+            9, // Strip "unknown: ".
             error.message.indexOf('\n', expected.length), // Strip code snippet.
           );
           return {
