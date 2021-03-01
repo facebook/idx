@@ -20,8 +20,8 @@
     "@babel/plugin-transform-async-to-generator": "^7.8.3",
     "@babel/plugin-transform-flow-strip-types": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
-    "babel-jest": "^25.2.6",
-    "jest": "^25.2.7"
+    "babel-jest": "26.6.3",
+    "jest": "26.6.3"
   },
   "jest": {
     "testEnvironment": "node",
