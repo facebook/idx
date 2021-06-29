@@ -15,7 +15,6 @@ aliases:
       - ~/.cache/yarn
     key: v1-yarn-cache-{{ arch }}-{{ checksum "yarn.lock" }}
 
-
 # -------------------------
 #          JOBS
 # -------------------------
@@ -23,7 +22,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     working_directory: ~/idx
     steps:
       - checkout
