@@ -5,7 +5,8 @@
     "lint": "eslint --ignore-path .gitignore .",
     "postinstall": "lerna bootstrap --concurrency=1",
     "prepare": "husky install",
-    "test": "lerna run test"
+    "test": "lerna run test",
+    "upgrade-all": "yarn upgrade --latest && lerna run upgrade"
   },
   "prettier": {
     "arrowParens": "avoid",

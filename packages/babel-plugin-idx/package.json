@@ -12,7 +12,8 @@
   "scripts": {
     "build": "babel src --out-dir lib --ignore test.js --copy-files",
     "prepublish": "yarn run build && cp ../../README.md .",
-    "test": "jest"
+    "test": "jest",
+    "upgrade": "yarn upgrade --latest"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",
