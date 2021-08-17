@@ -1,4 +1,4 @@
-# idx [![Circle Status](https://circleci.com/gh/facebookincubator/idx/tree/master.svg?style=shield&circle-token=da61f3cf105f22309c8ca0ba4482daa538bf5349)](https://circleci.com/gh/facebookincubator/idx)
+# idx [![Circle Status](https://circleci.com/gh/facebookincubator/idx/tree/main.svg?style=shield&circle-token=da61f3cf105f22309c8ca0ba4482daa538bf5349)](https://circleci.com/gh/facebookincubator/idx)
 
 `idx` is a utility function for traversing properties on objects and arrays.
 
@@ -26,9 +26,7 @@ $ yarn add idx babel-plugin-idx
 
 ```javascript
 {
-  plugins: [
-    ["babel-plugin-idx"]
-  ]
+  plugins: [['babel-plugin-idx']];
 }
 ```
 
@@ -44,7 +42,7 @@ type User = {
   user: ?{
     name: string,
     friends: ?Array<User>,
-  }
+  },
 };
 ```
 
@@ -52,15 +50,15 @@ Getting to the friends of my first friend would resemble:
 
 ```javascript
 props.user &&
-props.user.friends &&
-props.user.friends[0] &&
-props.user.friends[0].friends
+  props.user.friends &&
+  props.user.friends[0] &&
+  props.user.friends[0].friends;
 ```
 
 Instead, `idx` allows us to safely write:
 
 ```javascript
-idx(props, _ => _.user.friends[0].friends)
+idx(props, _ => _.user.friends[0].friends);
 ```
 
 The second argument must be a function that returns one or more nested member
@@ -95,18 +93,21 @@ replaces all its usages, so this code:
 import idx from 'idx';
 
 function getFriends() {
-  return idx(props, _ => _.user.friends[0].friends)
-};
+  return idx(props, _ => _.user.friends[0].friends);
+}
 ```
 
 gets transformed to something like:
 
 ```javascript
 function getFriends() {
-  return props.user == null ? props.user :
-  props.user.friends == null ? props.user.friends :
-  props.user.friends[0] == null ? props.user.friends[0] :
-  props.user.friends[0].friends
+  return props.user == null
+    ? props.user
+    : props.user.friends == null
+    ? props.user.friends
+    : props.user.friends[0] == null
+    ? props.user.friends[0]
+    : props.user.friends[0].friends;
 }
 ```
 
@@ -118,10 +119,13 @@ directly requiring the `idx` npm package can also get transformed:
 ```javascript
 {
   plugins: [
-    ["babel-plugin-idx", {
-      importName: './idx',
-    }]
-  ]
+    [
+      'babel-plugin-idx',
+      {
+        importName: './idx',
+      },
+    ],
+  ];
 }
 ```
 
