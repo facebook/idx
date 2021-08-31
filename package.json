@@ -6,7 +6,7 @@
     "postinstall": "lerna bootstrap --concurrency=1",
     "prepare": "husky install",
     "test": "lerna run test",
-    "upgrade-all": "yarn upgrade --latest && lerna run upgrade"
+    "upgrade-all": "yarn upgrade --latest && lerna run --concurrency=1 upgrade"
   },
   "prettier": {
     "arrowParens": "avoid",
