@@ -24,6 +24,9 @@
     "babel-jest": "^27.0.6",
     "jest": "^27.0.6"
   },
+  "resolutions": {
+    "set-value": "^4.1.0"
+  },
   "jest": {
     "testEnvironment": "node",
     "rootDir": "src"
