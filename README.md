@@ -1,5 +1,7 @@
 # idx [![Circle Status](https://circleci.com/gh/facebookincubator/idx/tree/main.svg?style=shield&circle-token=da61f3cf105f22309c8ca0ba4482daa538bf5349)](https://circleci.com/gh/facebookincubator/idx)
 
+[![Support Ukraine](https://img.shields.io/badge/Support-Ukraine-FFD500?style=flat&labelColor=005BBB)](https://opensource.fb.com/support-ukraine) 
+
 `idx` is a utility function for traversing properties on objects and arrays.
 
 If an intermediate property is either null or undefined, it is instead returned.
