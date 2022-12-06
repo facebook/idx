@@ -1,6 +1,29 @@
 {
-  "extends": "fbjs-opensource",
+  "extends": "eslint:recommended",
+  "parser": "hermes-eslint",
+  "plugins": ["jest"],
+  "root": true,
   "rules": {
     "max-len": 0
-  }
+  },
+  "overrides": [
+    {
+      "files": ["packages/babel-plugin-idx/src/*.js"],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": ["packages/idx/src/*.js"],
+      "env": {
+        "commonjs": true
+      }
+    },
+    {
+      "files": ["**/*.test.js"],
+      "env": {
+        "jest/globals": true
+      }
+    }
+  ]
 }
