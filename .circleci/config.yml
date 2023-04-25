@@ -22,7 +22,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: circleci/node:16
+      - image: circleci/node:18
     working_directory: ~/idx
     steps:
       - checkout
