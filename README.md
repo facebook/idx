@@ -2,14 +2,14 @@
 
 [![Support Ukraine](https://img.shields.io/badge/Support-Ukraine-FFD500?style=flat&labelColor=005BBB)](https://opensource.fb.com/support-ukraine)
 
-`idx` is a utility function for traversing properties on objects and arrays.
+`idx` is a utility function for traversing properties on objects and arrays,
+where intermediate properties may be null or undefined.
 
-If an intermediate property is either null or undefined, it is instead returned.
-The purpose of this function is to simplify extracting properties from a chain
-of maybe-typed properties.
+**This module has since been deprecated, in favor of [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).**
 
-This module exists as a stop-gap solution because JavaScript does not currently
-support [optional chaining](https://github.com/tc39/proposal-optional-chaining).
+One notable difference between `idx` and optional chaining is what happens when
+an intermediate property is null or undefined. With `idx`, the null or undefined
+value is returned, whereas optional chaining would resolve to undefined.
 
 ## Install
 
