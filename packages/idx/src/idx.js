@@ -60,9 +60,9 @@ function idx<Ti, Tv>(input: Ti, accessor: (input: Ti) => Tv): ?Tv {
     return accessor(input);
   } catch (error) {
     if (error instanceof TypeError) {
-      if (nullPattern.test(error)) {
+      if (nullPattern.test(error.message)) {
         return null;
-      } else if (undefinedPattern.test(error)) {
+      } else if (undefinedPattern.test(error.message)) {
         return undefined;
       }
     }
