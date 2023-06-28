@@ -1,12 +1,14 @@
 {
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "lerna run build",
     "lint": "eslint --ignore-path .gitignore .",
-    "postinstall": "lerna bootstrap --concurrency=1",
     "prepare": "husky install",
     "test": "lerna run test",
-    "upgrade-all": "yarn upgrade --latest && lerna run --concurrency=1 upgrade"
+    "upgrade-all": "yarn workspaces run upgrade && yarn upgrade --latest"
   },
   "prettier": {
     "arrowParens": "avoid",
