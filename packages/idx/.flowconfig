@@ -7,5 +7,7 @@
 [lints]
 
 [options]
+conditional_type=true
+mapped_type=true
 
 [strict]
