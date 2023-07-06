@@ -81,6 +81,14 @@ function getName(props: User): ?string {
 }
 ```
 
+**If you use `idx@3+`,** you may need to add the following to your `.flowconfig`:
+
+```
+[options]
+conditional_type=true
+mapped_type=true
+```
+
 ## Babel Plugin
 
 The `idx` runtime function exists for the purpose of illustrating the expected

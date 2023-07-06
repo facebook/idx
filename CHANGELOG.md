@@ -1,3 +1,9 @@
+# 3.0.0 / 2023-07-06
+
+- **Breaking Change:** New Flow type definition requires `flow-bin@0.211.0`.
+  - See the [updated documentation for `idx`](https://github.com/facebook/idx#static-typing) for additional configuration steps.
+  - In the future, older versions of `idx` may no longer be compatible with newer versions of `flow-bin`. (https://github.com/facebook/idx/pull/854)
+
 # 2.5.6 / 2019-05-05
 
 - TypeScript: Refactor `DeepRequiredObject` using `extends`.
