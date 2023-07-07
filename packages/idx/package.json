@@ -16,7 +16,7 @@
   "license": "MIT",
   "scripts": {
     "build": "scripts/build.sh",
-    "prepublish": "yarn run build && cp ../../README.md .",
+    "prepublish": "yarn run build && cp ../../{LICENSE,README.md} .",
     "test": "jest idx.test.js && yarn run tsc",
     "tsc": "tsc --noEmit --strict src/idx.test.ts",
     "upgrade": "yarn upgrade --latest"

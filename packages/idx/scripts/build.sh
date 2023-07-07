@@ -13,7 +13,9 @@ set -u
 
 ROOT_DIR=$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")
 
-babel "$ROOT_DIR/src" --out-dir "$ROOT_DIR/lib" --ignore test.js --copy-files
+rm -rf "${ROOT_DIR:?}/lib"
+babel "$ROOT_DIR/src" --out-dir "$ROOT_DIR/lib" --copy-files
+rm "$ROOT_DIR"/lib/idx.test.{js,ts}
 
 # Strip `@providesModule` from lib/**/*.js.
 find "$ROOT_DIR/lib" -type f -name '*.js' -exec \

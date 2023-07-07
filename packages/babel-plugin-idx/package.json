@@ -14,8 +14,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "babel src --out-dir lib --ignore test.js --copy-files",
-    "prepublish": "yarn run build && cp ../../README.md .",
+    "build": "babel src --out-dir lib --copy-files; rm lib/*.test.js",
+    "prepublish": "yarn run build && cp ../../{LICENSE,README.md} .",
     "test": "jest",
     "upgrade": "yarn upgrade --latest"
   },
