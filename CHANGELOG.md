@@ -1,3 +1,7 @@
+# 3.0.1 / 2023-07-06
+
+- Restore `LICENSE` and omit tests from published package.
+
 # 3.0.0 / 2023-07-06
 
 - **Breaking Change:** New Flow type definition requires `flow-bin@0.211.0`.
