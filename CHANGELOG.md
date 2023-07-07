@@ -1,3 +1,7 @@
+# 3.0.2 / 2023-07-06
+
+- Remove extraneous dependencies from `babel-plugin-idx`.
+
 # 3.0.1 / 2023-07-06
 
 - Restore `LICENSE` and omit tests from published package.
