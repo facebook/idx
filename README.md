@@ -1,11 +1,9 @@
-# idx [![CircleCI](https://dl.circleci.com/status-badge/img/gh/facebook/idx/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/facebook/idx/tree/main)
+# idx
 
-[![Support Ukraine](https://img.shields.io/badge/Support-Ukraine-FFD500?style=flat&labelColor=005BBB)](https://opensource.fb.com/support-ukraine)
+**This module is deprecated and no longer maintained. Use [optional chaining](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Operators/Optional_chaining) instead.**
 
 `idx` is a utility function for traversing properties on objects and arrays,
 where intermediate properties may be null or undefined.
-
-**This module has since been deprecated, in favor of [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining).**
 
 One notable difference between `idx` and optional chaining is what happens when
 an intermediate property is null or undefined. With `idx`, the null or undefined

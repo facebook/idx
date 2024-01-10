@@ -1,3 +1,7 @@
+# 3.0.3 / 2024-01-10
+
+- Update `README` in preparation for archiving the project.
+
 # 3.0.2 / 2023-07-06
 
 - Remove extraneous dependencies from `babel-plugin-idx`.
